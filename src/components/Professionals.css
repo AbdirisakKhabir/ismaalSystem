@@ -1,0 +1,125 @@
+.professionals-container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #faf5ff 0%, #f3e8ff 100%);
+  padding: 40px 20px;
+}
+
+.professionals-header {
+  max-width: 1400px;
+  margin: 0 auto 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.professionals-header .header-content {
+  flex: 1;
+}
+
+.professionals-title {
+  font-size: 36px;
+  font-weight: 800;
+  color: #1f2937;
+  margin: 0 0 8px 0;
+  background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.professionals-subtitle {
+  font-size: 16px;
+  color: #6b7280;
+  margin: 0;
+}
+
+.professionals-container .btn-refresh {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  background: white;
+  border: 2px solid #8B5CF6;
+  border-radius: 10px;
+  color: #8B5CF6;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(139, 92, 246, 0.1);
+}
+
+.professionals-container .btn-refresh:hover {
+  background: #8B5CF6;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+}
+
+.professionals-container .error-banner {
+  max-width: 1400px;
+  margin: 0 auto 24px;
+  padding: 16px 20px;
+  background: #fee2e2;
+  border: 1px solid #fecaca;
+  border-radius: 10px;
+  color: #991b1b;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 14px;
+}
+
+.professionals-container .error-banner svg {
+  flex-shrink: 0;
+}
+
+.professionals-container .error-banner span {
+  flex: 1;
+}
+
+.professionals-container .error-close {
+  background: transparent;
+  border: none;
+  color: #991b1b;
+  font-size: 24px;
+  cursor: pointer;
+  padding: 0;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: background 0.2s ease;
+}
+
+.professionals-container .error-close:hover {
+  background: rgba(153, 27, 27, 0.1);
+}
+
+.professionals-content {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+@media (max-width: 768px) {
+  .professionals-container {
+    padding: 20px 16px;
+  }
+
+  .professionals-title {
+    font-size: 28px;
+  }
+
+  .professionals-subtitle {
+    font-size: 14px;
+  }
+
+  .professionals-container .btn-refresh {
+    width: 100%;
+    justify-content: center;
+  }
+}
