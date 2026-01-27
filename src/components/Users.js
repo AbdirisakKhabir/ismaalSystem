@@ -40,15 +40,54 @@ const Users = () => {
 
   const handleDeleteConfirm = async () => {
     if (!deletingUser) return;
+    
+    console.log('Deleting user:', deletingUser);
+    console.log('User ID:', deletingUser.id);
+    console.log('User ID type:', typeof deletingUser.id);
+    
     try {
       setIsDeleting(true);
-      await userApi.deleteUser(deletingUser.id);
+      const userId = parseInt(deletingUser.id);
+      
+      if (isNaN(userId)) {
+        throw new Error('Invalid user ID');
+      }
+      
+      console.log('Calling deleteUser with ID:', userId);
+      await userApi.deleteUser(userId);
+      
       setUsers((prev) => prev.filter((u) => u.id !== deletingUser.id));
       setIsDeleteModalOpen(false);
       setDeletingUser(null);
       alert('User deleted successfully!');
     } catch (err) {
-      alert(err.response?.data?.error || 'Failed to delete user.');
+      console.error('Delete user error:', err);
+      console.error('Error response:', err.response);
+      console.error('Error status:', err.response?.status);
+      console.error('Error data:', err.response?.data);
+      
+      let errorMessage = 'Failed to delete user.';
+      
+      if (err.code === 'ENDPOINT_NOT_FOUND') {
+        errorMessage = 'Delete endpoint not available on server. Please contact admin.';
+      } else if (err.response?.data?.error) {
+        errorMessage = err.response.data.error;
+      } else if (err.response?.data?.message) {
+        errorMessage = err.response.data.message;
+      } else if (err.message) {
+        errorMessage = err.message;
+      } else if (err.response?.status === 404) {
+        errorMessage = 'User not found or already deleted.';
+      } else if (err.response?.status === 403) {
+        errorMessage = err.response?.data?.error || 'You do not have permission to delete this user.';
+      } else if (err.response?.status === 500) {
+        errorMessage = 'Server error. Please try again later.';
+      } else if (!err.response) {
+        errorMessage = 'Network error. Please check your connection.';
+      }
+      
+      alert(errorMessage);
+      setError(errorMessage);
     } finally {
       setIsDeleting(false);
     }

@@ -37,15 +37,23 @@ export const userApi = {
   // Delete user
   deleteUser: async (id) => {
     try {
-      const response = await api.delete(`/api/users/${id}`);
+      console.log('Attempting to delete user with ID:', id);
+      const response = await api.delete('/api/auth/account', {
+        data: { userId: id }
+      });
+      console.log('Delete user response:', response.data);
       return response.data;
     } catch (error) {
+      console.error('Error deleting user:', error);
+      console.error('Error response:', error.response);
+      console.error('Error status:', error.response?.status);
+      console.error('Error data:', error.response?.data);
+      
       if (error.response?.status === 404 || error.response?.status === 405) {
         const customError = new Error('DELETE endpoint not available on server');
         customError.code = 'ENDPOINT_NOT_FOUND';
         throw customError;
       }
-      console.error('Error deleting user:', error);
       throw error;
     }
   },
