@@ -80,7 +80,7 @@ const Submissions = () => {
       <div className="submissions-header">
         <div className="header-content">
           <h1 className="submissions-title">Submissions</h1>
-          <p className="submissions-subtitle">Review and approve pending submissions</p>
+          <p className="submissions-subtitle">Review and approve pending submissions and Requested Plans</p>
         </div>
         <button className="btn-refresh" onClick={fetchSubmissions}>Refresh</button>
       </div>
