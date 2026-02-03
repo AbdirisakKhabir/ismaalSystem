@@ -17,8 +17,13 @@ const ViewSubmissionModal = ({ submission, isOpen, onClose, onApprove, onReject,
     if (submission.logo) {
       return [submission.logo];
     }
+    if (submission.screenshot) {
+      return [submission.screenshot];
+    }
     return [];
   };
+
+  const isPlanRequest = submission.submissionType === 'planRequest';
 
   const images = getImages();
 
@@ -69,12 +74,14 @@ const ViewSubmissionModal = ({ submission, isOpen, onClose, onApprove, onReject,
     });
   };
 
-  const getTypeBadgeClass = (type) => {
+  const getTypeBadgeClass = (type, submissionType) => {
+    if (submissionType === 'planRequest') return 'type-planrequest';
     if (!type) return 'type-default';
     const typeLower = type.toLowerCase();
     if (typeLower === 'business') return 'type-business';
     if (typeLower === 'product') return 'type-product';
     if (typeLower === 'professional') return 'type-professional';
+    if (typeLower === 'plan request') return 'type-planrequest';
     return 'type-default';
   };
 
@@ -97,7 +104,7 @@ const ViewSubmissionModal = ({ submission, isOpen, onClose, onApprove, onReject,
         {/* Header */}
         <div className="view-submission-header">
           <div className="header-info">
-            <span className={`type-badge ${getTypeBadgeClass(submission.type)}`}>
+            <span className={`type-badge ${getTypeBadgeClass(submission.type, submission.submissionType)}`}>
               {submission.type || 'Submission'}
             </span>
             <span className={`status-badge ${getStatusBadgeClass(submission.status)}`}>
@@ -168,12 +175,86 @@ const ViewSubmissionModal = ({ submission, isOpen, onClose, onApprove, onReject,
 
           {/* Main Info */}
           <div className="submission-main-info">
-            <h2>{submission.name}</h2>
+            <h2>{submission.name || (isPlanRequest ? `Plan Upgrade: ${submission.currentPlan?.name || '?'} → ${submission.requestedPlan?.name || '?'}` : 'Submission')}</h2>
             <p className="submission-id">ID: #{submission.id}</p>
           </div>
 
+          {/* Plan Request Details */}
+          {isPlanRequest && (
+            <div className="info-section">
+              <h3>Plan Upgrade Request</h3>
+              <div className="details-grid">
+                <div className="detail-item">
+                  <div className="detail-icon">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M10 1.66667L12.575 6.88334L18.3333 7.725L14.1667 11.7833L15.15 17.5167L10 14.8083L4.85 17.5167L5.83333 11.7833L1.66667 7.725L7.425 6.88334L10 1.66667Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </div>
+                  <div className="detail-content">
+                    <span className="detail-label">Current Plan</span>
+                    <span className="detail-value">{submission.currentPlan?.name || 'N/A'}</span>
+                  </div>
+                </div>
+                <div className="detail-item">
+                  <div className="detail-icon">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M10 1.66667L12.575 6.88334L18.3333 7.725L14.1667 11.7833L15.15 17.5167L10 14.8083L4.85 17.5167L5.83333 11.7833L1.66667 7.725L7.425 6.88334L10 1.66667Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </div>
+                  <div className="detail-content">
+                    <span className="detail-label">Requested Plan</span>
+                    <span className="detail-value">{submission.requestedPlan?.name || 'N/A'}</span>
+                  </div>
+                </div>
+                <div className="detail-item">
+                  <div className="detail-icon price">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M10 0.833336V19.1667M14.1667 4.16667H7.91667C7.14312 4.16667 6.40125 4.47396 5.85427 5.02094C5.30729 5.56792 5 6.30979 5 7.08334C5 7.85688 5.30729 8.59876 5.85427 9.14573C6.40125 9.69271 7.14312 10 7.91667 10H12.0833C12.8569 10 13.5987 10.3073 14.1457 10.8543C14.6927 11.4013 15 12.1431 15 12.9167C15 13.6902 14.6927 14.4321 14.1457 14.9791C13.5987 15.526 12.8569 15.8333 12.0833 15.8333H5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </div>
+                  <div className="detail-content">
+                    <span className="detail-label">Amount</span>
+                    <span className="detail-value">{formatPrice(submission.amount)}</span>
+                  </div>
+                </div>
+                <div className="detail-item">
+                  <div className="detail-icon">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M10 0.833336V19.1667M14.1667 4.16667H7.91667C7.14312 4.16667 6.40125 4.47396 5.85427 5.02094C5.30729 5.56792 5 6.30979 5 7.08334C5 7.85688 5.30729 8.59876 5.85427 9.14573C6.40125 9.69271 7.14312 10 7.91667 10H12.0833C12.8569 10 13.5987 10.3073 14.1457 10.8543C14.6927 11.4013 15 12.1431 15 12.9167C15 13.6902 14.6927 14.4321 14.1457 14.9791C13.5987 15.526 12.8569 15.8333 12.0833 15.8333H5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </div>
+                  <div className="detail-content">
+                    <span className="detail-label">Payment Method</span>
+                    <span className="detail-value">{submission.paymentMethod || 'N/A'}</span>
+                  </div>
+                </div>
+                {submission.phoneNumber && (
+                  <div className="detail-item">
+                    <div className="detail-icon">
+                      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M18.3083 14.175L15.4833 13.9C15.1417 13.8583 14.8083 13.9917 14.575 14.2583L12.6583 16.3917C9.94999 15.0833 7.58332 12.7167 6.27499 10.0083L8.41665 8.09167C8.68332 7.85834 8.81665 7.52501 8.77499 7.18334L8.49999 4.35834C8.42499 3.60001 7.77499 3.01667 7.00832 2.98334L5.09165 2.83334C4.37499 2.80001 3.69999 3.20834 3.38332 3.85834L2.24999 6.26667C1.92499 6.93334 2.09165 7.73334 2.65832 8.20834C4.40832 9.63334 6.61665 10.625 8.99999 11.0833C9.64165 11.2 10.2417 10.8917 10.4917 10.2833L11.625 7.875C11.9417 7.22501 11.775 6.42501 11.1083 6.10001" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                    </div>
+                    <div className="detail-content">
+                      <span className="detail-label">Phone</span>
+                      <span className="detail-value">{submission.phoneNumber}</span>
+                    </div>
+                  </div>
+                )}
+                {submission.adminNotes && (
+                  <div className="detail-item full-width">
+                    <div className="detail-content">
+                      <span className="detail-label">Admin Notes</span>
+                      <span className="detail-value">{submission.adminNotes}</span>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
           {/* Description */}
-          {submission.description && (
+          {submission.description && !isPlanRequest && (
             <div className="info-section">
               <h3>Description</h3>
               <p className="description-text">{submission.description}</p>
@@ -181,6 +262,7 @@ const ViewSubmissionModal = ({ submission, isOpen, onClose, onApprove, onReject,
           )}
 
           {/* Details Grid */}
+          {!isPlanRequest && (
           <div className="details-grid">
             {/* Location */}
             {submission.location && (
@@ -259,6 +341,7 @@ const ViewSubmissionModal = ({ submission, isOpen, onClose, onApprove, onReject,
               </div>
             )}
           </div>
+          )}
 
           {/* Submitter Info */}
           <div className="submitter-section">

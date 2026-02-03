@@ -61,6 +61,11 @@
   color: #065f46;
 }
 
+.view-submission-header .type-planrequest {
+  background: rgba(233, 213, 255, 0.9);
+  color: #6b21a8;
+}
+
 .view-submission-header .type-default {
   background: rgba(255, 255, 255, 0.2);
   color: white;
@@ -273,6 +278,10 @@
   background: #f9fafb;
   border-radius: 12px;
   border: 1px solid #e5e7eb;
+}
+
+.detail-item.full-width {
+  grid-column: 1 / -1;
 }
 
 .detail-icon {

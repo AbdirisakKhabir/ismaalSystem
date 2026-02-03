@@ -285,6 +285,11 @@
   color: #065f46;
 }
 
+.type-planrequest {
+  background: #e9d5ff;
+  color: #6b21a8;
+}
+
 .type-default {
   background: #f3f4f6;
   color: #374151;

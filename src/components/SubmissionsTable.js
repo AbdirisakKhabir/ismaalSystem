@@ -7,7 +7,14 @@ const SubmissionsTable = ({ submissions, onView, onApprove, onReject, isLoading,
 
   const formatDate = (d) => d ? new Date(d).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'N/A';
   const getStatusClass = (status) => { const s = status?.toLowerCase(); if (s === 'approved' || s === 'active') return 'status-approved'; if (s === 'rejected') return 'status-rejected'; return 'status-pending'; };
-  const getPreviewImage = (s) => { if (s.image) return s.image.split(',')[0].trim(); if (s.logo) return s.logo; return null; };
+  const getPreviewImage = (s) => { if (s.image) return s.image.split(',')[0].trim(); if (s.logo) return s.logo; if (s.screenshot) return s.screenshot; return null; };
+  const getCardName = (s) => s.name || (s.submissionType === 'planRequest' ? `Plan Upgrade: ${s.currentPlan?.name || '?'} → ${s.requestedPlan?.name || '?'}` : 'Unknown');
+  const getCardDescription = (s) => {
+    if (s.submissionType === 'planRequest') {
+      return `User ${s.user?.name || 'Unknown'} requested upgrade from ${s.currentPlan?.name || 'current'} to ${s.requestedPlan?.name || 'requested'} plan. Amount: $${parseFloat(s.amount || 0).toFixed(2)}`;
+    }
+    return s.description ? (s.description.length > 120 ? `${s.description.substring(0, 120)}...` : s.description) : 'No description available';
+  };
 
   return (
     <div className="submissions-cards-container">
@@ -26,19 +33,19 @@ const SubmissionsTable = ({ submissions, onView, onApprove, onReject, isLoading,
               </div>
             )}
             <div className="submission-card-badges">
-              <span className={`type-badge type-${s.type?.toLowerCase() || 'default'}`}>{s.type || 'Unknown'}</span>
+              <span className={`type-badge type-${(s.submissionType || s.type || 'default').replace(/\s+/g, '')}`}>{s.type || 'Unknown'}</span>
               <span className={`status-badge ${getStatusClass(s.status)}`}>{s.status || 'PENDING'}</span>
             </div>
           </div>
 
           <div className="submission-card-content">
             <div className="submission-card-header">
-              <h3 className="submission-card-name">{s.name}</h3>
+              <h3 className="submission-card-name">{getCardName(s)}</h3>
               <span className="submission-card-id">ID: #{s.id}</span>
             </div>
 
             <p className="submission-card-description">
-              {s.description ? (s.description.length > 120 ? `${s.description.substring(0, 120)}...` : s.description) : 'No description available'}
+              {getCardDescription(s)}
             </p>
 
             <div className="submission-card-info">

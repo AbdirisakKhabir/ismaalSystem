@@ -12,14 +12,15 @@ const api = axios.create({
 
 // Submission API functions
 export const submissionApi = {
-  // Get all pending submissions from all sources
+  // Get all pending submissions from all sources (including plan upgrade requests)
   getAllSubmissions: async () => {
     try {
-      // Fetch from all three endpoints in parallel
-      const [productsRes, professionalsRes, businessesRes] = await Promise.allSettled([
+      // Fetch from all four endpoints in parallel
+      const [productsRes, professionalsRes, businessesRes, planRequestsRes] = await Promise.allSettled([
         api.get('/api/products/pending'),
         api.get('/api/professionals/pending'),
         api.get('/api/businesses/pending'),
+        api.get('/api/upgrade-requests'),
       ]);
 
       const submissions = [];
@@ -66,6 +67,21 @@ export const submissionApi = {
         });
       }
 
+      // Process plan upgrade requests
+      if (planRequestsRes.status === 'fulfilled' && planRequestsRes.value?.data) {
+        const planRequests = Array.isArray(planRequestsRes.value.data)
+          ? planRequestsRes.value.data
+          : planRequestsRes.value.data?.requests || [];
+        planRequests.forEach((item) => {
+          submissions.push({
+            ...item,
+            type: 'Plan Request',
+            submissionType: 'planRequest',
+            name: `Plan Upgrade: ${item.currentPlan?.name || 'Current'} → ${item.requestedPlan?.name || 'Requested'}`,
+          });
+        });
+      }
+
       // Sort by submission date (newest first)
       submissions.sort((a, b) => {
         const dateA = new Date(a.submittedDate || a.createdAt);
@@ -81,24 +97,31 @@ export const submissionApi = {
   },
 
   // Approve a submission based on type
-  approveSubmission: async (id, submissionType) => {
+  approveSubmission: async (id, submissionType, adminNotes) => {
     try {
-      let endpoint;
-      switch (submissionType) {
-        case 'product':
-          endpoint = `/api/products/${id}/approve`;
-          break;
-        case 'professional':
-          endpoint = `/api/professionals/${id}/approve`;
-          break;
-        case 'business':
-          endpoint = `/api/businesses/${id}/approve`;
-          break;
-        default:
-          throw new Error('Unknown submission type');
+      let response;
+      if (submissionType === 'planRequest') {
+        response = await api.put(`/api/admin/upgrade-requests/${id}/status`, {
+          status: 'APPROVED',
+          adminNotes: adminNotes || null,
+        });
+      } else {
+        let endpoint;
+        switch (submissionType) {
+          case 'product':
+            endpoint = `/api/products/${id}/approve`;
+            break;
+          case 'professional':
+            endpoint = `/api/professionals/${id}/approve`;
+            break;
+          case 'business':
+            endpoint = `/api/businesses/${id}/approve`;
+            break;
+          default:
+            throw new Error('Unknown submission type');
+        }
+        response = await api.put(endpoint);
       }
-
-      const response = await api.put(endpoint);
       return response.data;
     } catch (error) {
       if (error.response?.status === 404 || error.response?.status === 405) {
@@ -112,24 +135,31 @@ export const submissionApi = {
   },
 
   // Reject a submission based on type
-  rejectSubmission: async (id, submissionType) => {
+  rejectSubmission: async (id, submissionType, adminNotes) => {
     try {
-      let endpoint;
-      switch (submissionType) {
-        case 'product':
-          endpoint = `/api/products/${id}/reject`;
-          break;
-        case 'professional':
-          endpoint = `/api/professionals/${id}/reject`;
-          break;
-        case 'business':
-          endpoint = `/api/businesses/${id}/reject`;
-          break;
-        default:
-          throw new Error('Unknown submission type');
+      let response;
+      if (submissionType === 'planRequest') {
+        response = await api.put(`/api/admin/upgrade-requests/${id}/status`, {
+          status: 'REJECTED',
+          adminNotes: adminNotes || null,
+        });
+      } else {
+        let endpoint;
+        switch (submissionType) {
+          case 'product':
+            endpoint = `/api/products/${id}/reject`;
+            break;
+          case 'professional':
+            endpoint = `/api/professionals/${id}/reject`;
+            break;
+          case 'business':
+            endpoint = `/api/businesses/${id}/reject`;
+            break;
+          default:
+            throw new Error('Unknown submission type');
+        }
+        response = await api.put(endpoint);
       }
-
-      const response = await api.put(endpoint);
       return response.data;
     } catch (error) {
       if (error.response?.status === 404 || error.response?.status === 405) {
