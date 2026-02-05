@@ -5,19 +5,25 @@ const PlansTable = ({ plans, onView, onEdit, onDelete, isLoading }) => {
   if (isLoading) return <div className="plans-table-loading"><div className="loading-spinner"></div><p>Loading plans...</p></div>;
   if (!plans || plans.length === 0) return <div className="plans-table-empty"><p>No plans found</p></div>;
 
-  const formatPrice = (price) => price === 0 ? 'Free' : `$${parseFloat(price).toFixed(2)}`;
+  const formatPrice = (plan) => {
+    if (!plan) return '';
+    if (plan.price === 0) return 'Free';
+    const period = plan.billingPeriod === 'YEARLY' ? 'year' : 'month';
+    return `$${parseFloat(plan.price).toFixed(2)}/${period}`;
+  };
   const formatDate = (d) => d ? new Date(d).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) : 'N/A';
 
   return (
     <div className="plans-table-container">
       <table className="plans-table">
-        <thead><tr><th>Plan Name</th><th>Description</th><th>Price</th><th>Businesses</th><th>Products</th><th>Profile Status</th><th>Users</th><th>Created</th><th>Actions</th></tr></thead>
+        <thead><tr><th>Plan Name</th><th>Description</th><th>Price</th><th>Billing</th><th>Businesses</th><th>Products</th><th>Profile Status</th><th>Users</th><th>Created</th><th>Actions</th></tr></thead>
         <tbody>
           {plans.map((plan) => (
             <tr key={plan.id}>
               <td><div className="plan-name">{plan.name}</div><div className="plan-id">ID: #{plan.id}</div></td>
               <td>{plan.description ? (plan.description.length > 60 ? `${plan.description.substring(0, 60)}...` : plan.description) : 'No description'}</td>
-              <td><span className={`price-badge ${plan.price === 0 ? 'free' : 'paid'}`}>{formatPrice(plan.price)}</span></td>
+              <td><span className={`price-badge ${plan.price === 0 ? 'free' : 'paid'}`}>{formatPrice(plan)}</span></td>
+              <td>{plan.billingPeriod || 'MONTHLY'}</td>
               <td>{plan.allowedBusinesses}</td>
               <td>{plan.allowedProducts}</td>
               <td>{plan.profile_status || 'N/A'}</td>

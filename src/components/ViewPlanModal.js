@@ -5,9 +5,11 @@ const ViewPlanModal = ({ plan, isOpen, onClose }) => {
   if (!isOpen || !plan) return null;
 
   // Helper to format price
-  const formatPrice = (price) => {
-    if (price === 0) return 'Free';
-    return `$${parseFloat(price).toFixed(2)}`;
+  const formatPrice = (plan) => {
+    if (!plan) return '';
+    if (plan.price === 0) return 'Free';
+    const period = plan.billingPeriod === 'YEARLY' ? 'year' : 'month';
+    return `$${parseFloat(plan.price).toFixed(2)}/${period}`;
   };
 
   // Helper to format date
@@ -40,7 +42,7 @@ const ViewPlanModal = ({ plan, isOpen, onClose }) => {
           <div className="plan-header-content">
             <h2>{plan.name}</h2>
             <span className={`price-tag ${plan.price === 0 ? 'free' : 'paid'}`}>
-              {formatPrice(plan.price)}
+              {formatPrice(plan)}
             </span>
           </div>
           <button className="modal-close-btn" onClick={onClose}>
@@ -64,6 +66,10 @@ const ViewPlanModal = ({ plan, isOpen, onClose }) => {
             <div className="overview-details">
               <span className="overview-label">Plan ID</span>
               <span className="overview-value">#{plan.id}</span>
+            </div>
+            <div className="overview-details">
+              <span className="overview-label">Billing Period</span>
+              <span className="overview-value">{plan.billingPeriod || 'MONTHLY'}</span>
             </div>
             <div className="overview-details">
               <span className="overview-label">Profile Status</span>

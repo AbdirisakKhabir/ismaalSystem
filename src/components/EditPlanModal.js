@@ -6,6 +6,7 @@ const EditPlanModal = ({ plan, isOpen, onClose, onSave, isLoading }) => {
     name: '',
     description: '',
     price: '',
+    billingPeriod: 'MONTHLY',
     allowedBusinesses: '',
     allowedProducts: '',
     profile_status: '',
@@ -19,6 +20,7 @@ const EditPlanModal = ({ plan, isOpen, onClose, onSave, isLoading }) => {
         name: plan.name || '',
         description: plan.description || '',
         price: plan.price?.toString() || '0',
+        billingPeriod: plan.billingPeriod || 'MONTHLY',
         allowedBusinesses: plan.allowedBusinesses?.toString() || '0',
         allowedProducts: plan.allowedProducts?.toString() || '0',
         profile_status: plan.profile_status || 'Active',
@@ -40,6 +42,10 @@ const EditPlanModal = ({ plan, isOpen, onClose, onSave, isLoading }) => {
 
     if (formData.price === '' || isNaN(parseFloat(formData.price)) || parseFloat(formData.price) < 0) {
       newErrors.price = 'Price must be a valid number (0 or greater)';
+    }
+
+    if (!formData.billingPeriod || !['MONTHLY', 'YEARLY'].includes(formData.billingPeriod)) {
+      newErrors.billingPeriod = 'Billing period is required';
     }
 
     if (formData.allowedBusinesses === '' || isNaN(parseInt(formData.allowedBusinesses)) || parseInt(formData.allowedBusinesses) < 0) {
@@ -80,6 +86,7 @@ const EditPlanModal = ({ plan, isOpen, onClose, onSave, isLoading }) => {
         name: formData.name.trim(),
         description: formData.description.trim(),
         price: parseFloat(formData.price),
+        billingPeriod: formData.billingPeriod,
         allowedBusinesses: parseInt(formData.allowedBusinesses),
         allowedProducts: parseInt(formData.allowedProducts),
         profile_status: formData.profile_status.trim(),
@@ -168,6 +175,28 @@ const EditPlanModal = ({ plan, isOpen, onClose, onSave, isLoading }) => {
                 disabled={isLoading}
               />
               {errors.price && <span className="error-message">{errors.price}</span>}
+            </div>
+
+            {/* Billing Period */}
+            <div className="form-group">
+              <label htmlFor="billingPeriod">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M2.66666 3.33334H13.3333M2.66666 8H13.3333M2.66666 12.6667H13.3333" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+                Billing Period
+              </label>
+              <select
+                id="billingPeriod"
+                name="billingPeriod"
+                value={formData.billingPeriod}
+                onChange={handleChange}
+                className={errors.billingPeriod ? 'error' : ''}
+                disabled={isLoading}
+              >
+                <option value="MONTHLY">Monthly</option>
+                <option value="YEARLY">Yearly</option>
+              </select>
+              {errors.billingPeriod && <span className="error-message">{errors.billingPeriod}</span>}
             </div>
 
             {/* Limits Row */}
