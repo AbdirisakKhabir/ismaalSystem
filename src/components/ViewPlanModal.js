@@ -5,11 +5,12 @@ const ViewPlanModal = ({ plan, isOpen, onClose }) => {
   if (!isOpen || !plan) return null;
 
   // Helper to format price
-  const formatPrice = (plan) => {
+  const formatPrice = (plan, period) => {
     if (!plan) return '';
-    if (plan.price === 0) return 'Free';
-    const period = plan.billingPeriod === 'YEARLY' ? 'year' : 'month';
-    return `$${parseFloat(plan.price).toFixed(2)}/${period}`;
+    const monthly = plan.priceMonthly ?? plan.price ?? 0;
+    const yearly = plan.priceYearly ?? 0;
+    const price = period === 'YEARLY' ? yearly : monthly;
+    return price === 0 ? 'Free' : `$${parseFloat(price).toFixed(2)}`;
   };
 
   // Helper to format date
@@ -41,8 +42,8 @@ const ViewPlanModal = ({ plan, isOpen, onClose }) => {
         <div className="view-plan-header">
           <div className="plan-header-content">
             <h2>{plan.name}</h2>
-            <span className={`price-tag ${plan.price === 0 ? 'free' : 'paid'}`}>
-              {formatPrice(plan)}
+            <span className={`price-tag ${(plan.priceMonthly ?? plan.price ?? 0) === 0 && (plan.priceYearly ?? 0) === 0 ? 'free' : 'paid'}`}>
+              {formatPrice(plan, 'MONTHLY')} / {formatPrice(plan, 'YEARLY')}
             </span>
           </div>
           <button className="modal-close-btn" onClick={onClose}>
@@ -68,8 +69,12 @@ const ViewPlanModal = ({ plan, isOpen, onClose }) => {
               <span className="overview-value">#{plan.id}</span>
             </div>
             <div className="overview-details">
-              <span className="overview-label">Billing Period</span>
-              <span className="overview-value">{plan.billingPeriod || 'MONTHLY'}</span>
+              <span className="overview-label">Monthly Price</span>
+              <span className="overview-value">{formatPrice(plan, 'MONTHLY')}</span>
+            </div>
+            <div className="overview-details">
+              <span className="overview-label">Yearly Price</span>
+              <span className="overview-value">{formatPrice(plan, 'YEARLY')}</span>
             </div>
             <div className="overview-details">
               <span className="overview-label">Profile Status</span>

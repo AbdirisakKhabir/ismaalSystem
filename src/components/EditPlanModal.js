@@ -5,8 +5,8 @@ const EditPlanModal = ({ plan, isOpen, onClose, onSave, isLoading }) => {
   const [formData, setFormData] = useState({
     name: '',
     description: '',
-    price: '',
-    billingPeriod: 'MONTHLY',
+    priceMonthly: '',
+    priceYearly: '',
     allowedBusinesses: '',
     allowedProducts: '',
     profile_status: '',
@@ -19,8 +19,8 @@ const EditPlanModal = ({ plan, isOpen, onClose, onSave, isLoading }) => {
       setFormData({
         name: plan.name || '',
         description: plan.description || '',
-        price: plan.price?.toString() || '0',
-        billingPeriod: plan.billingPeriod || 'MONTHLY',
+        priceMonthly: plan.priceMonthly?.toString() || plan.price?.toString() || '0',
+        priceYearly: plan.priceYearly?.toString() || '0',
         allowedBusinesses: plan.allowedBusinesses?.toString() || '0',
         allowedProducts: plan.allowedProducts?.toString() || '0',
         profile_status: plan.profile_status || 'Active',
@@ -40,12 +40,12 @@ const EditPlanModal = ({ plan, isOpen, onClose, onSave, isLoading }) => {
       newErrors.description = 'Description is required';
     }
 
-    if (formData.price === '' || isNaN(parseFloat(formData.price)) || parseFloat(formData.price) < 0) {
-      newErrors.price = 'Price must be a valid number (0 or greater)';
+    if (formData.priceMonthly === '' || isNaN(parseFloat(formData.priceMonthly)) || parseFloat(formData.priceMonthly) < 0) {
+      newErrors.priceMonthly = 'Monthly price must be a valid number (0 or greater)';
     }
 
-    if (!formData.billingPeriod || !['MONTHLY', 'YEARLY'].includes(formData.billingPeriod)) {
-      newErrors.billingPeriod = 'Billing period is required';
+    if (formData.priceYearly === '' || isNaN(parseFloat(formData.priceYearly)) || parseFloat(formData.priceYearly) < 0) {
+      newErrors.priceYearly = 'Yearly price must be a valid number (0 or greater)';
     }
 
     if (formData.allowedBusinesses === '' || isNaN(parseInt(formData.allowedBusinesses)) || parseInt(formData.allowedBusinesses) < 0) {
@@ -85,8 +85,9 @@ const EditPlanModal = ({ plan, isOpen, onClose, onSave, isLoading }) => {
       const updatedData = {
         name: formData.name.trim(),
         description: formData.description.trim(),
-        price: parseFloat(formData.price),
-        billingPeriod: formData.billingPeriod,
+        price: parseFloat(formData.priceMonthly),
+        priceMonthly: parseFloat(formData.priceMonthly),
+        priceYearly: parseFloat(formData.priceYearly),
         allowedBusinesses: parseInt(formData.allowedBusinesses),
         allowedProducts: parseInt(formData.allowedProducts),
         profile_status: formData.profile_status.trim(),
@@ -154,49 +155,50 @@ const EditPlanModal = ({ plan, isOpen, onClose, onSave, isLoading }) => {
               {errors.description && <span className="error-message">{errors.description}</span>}
             </div>
 
-            {/* Price */}
+            {/* Monthly Price */}
             <div className="form-group">
-              <label htmlFor="price">
+              <label htmlFor="priceMonthly">
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M8 0.666672V15.3333M11.3333 3.33334H6.33333C5.71449 3.33334 5.121 3.57918 4.68342 4.01676C4.24583 4.45435 4 5.04784 4 5.66668C4 6.28551 4.24583 6.87901 4.68342 7.31659C5.121 7.75418 5.71449 8.00001 6.33333 8.00001H9.66667C10.2855 8.00001 10.879 8.24584 11.3166 8.68343C11.7542 9.12101 12 9.71451 12 10.3333C12 10.9522 11.7542 11.5457 11.3166 11.9833C10.879 12.4208 10.2855 12.6667 9.66667 12.6667H4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M2.66666 3.33334H13.3333M2.66666 8H13.3333M2.66666 12.6667H13.3333" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
-                Price ($)
+                Monthly Price ($)
               </label>
               <input
                 type="number"
-                id="price"
-                name="price"
-                value={formData.price}
+                id="priceMonthly"
+                name="priceMonthly"
+                value={formData.priceMonthly}
                 onChange={handleChange}
                 placeholder="0.00"
                 min="0"
                 step="0.01"
-                className={errors.price ? 'error' : ''}
+                className={errors.priceMonthly ? 'error' : ''}
                 disabled={isLoading}
               />
-              {errors.price && <span className="error-message">{errors.price}</span>}
+              {errors.priceMonthly && <span className="error-message">{errors.priceMonthly}</span>}
             </div>
 
-            {/* Billing Period */}
+            {/* Yearly Price */}
             <div className="form-group">
-              <label htmlFor="billingPeriod">
+              <label htmlFor="priceYearly">
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M2.66666 3.33334H13.3333M2.66666 8H13.3333M2.66666 12.6667H13.3333" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M8 0.666672V15.3333M11.3333 3.33334H6.33333C5.71449 3.33334 5.121 3.57918 4.68342 4.01676C4.24583 4.45435 4 5.04784 4 5.66668C4 6.28551 4.24583 6.87901 4.68342 7.31659C5.121 7.75418 5.71449 8.00001 6.33333 8.00001H9.66667C10.2855 8.00001 10.879 8.24584 11.3166 8.68343C11.7542 9.12101 12 9.71451 12 10.3333C12 10.9522 11.7542 11.5457 11.3166 11.9833C10.879 12.4208 10.2855 12.6667 9.66667 12.6667H4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
-                Billing Period
+                Yearly Price ($)
               </label>
-              <select
-                id="billingPeriod"
-                name="billingPeriod"
-                value={formData.billingPeriod}
+              <input
+                type="number"
+                id="priceYearly"
+                name="priceYearly"
+                value={formData.priceYearly}
                 onChange={handleChange}
-                className={errors.billingPeriod ? 'error' : ''}
+                placeholder="0.00"
+                min="0"
+                step="0.01"
+                className={errors.priceYearly ? 'error' : ''}
                 disabled={isLoading}
-              >
-                <option value="MONTHLY">Monthly</option>
-                <option value="YEARLY">Yearly</option>
-              </select>
-              {errors.billingPeriod && <span className="error-message">{errors.billingPeriod}</span>}
+              />
+              {errors.priceYearly && <span className="error-message">{errors.priceYearly}</span>}
             </div>
 
             {/* Limits Row */}
