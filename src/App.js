@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import './App.css';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import Login from './components/Login';
@@ -13,10 +13,65 @@ import Users from './components/Users';
 function Dashboard() {
   const [activeTab, setActiveTab] = useState('business');
   const { user, logout } = useAuth();
+  const [versionForm, setVersionForm] = useState({
+    latestVersion: '',
+    minVersion: '',
+    androidUrl: '',
+    iosUrl: '',
+    forceUpdate: false,
+    releaseNotes: '',
+  });
+  const [versionLoading, setVersionLoading] = useState(false);
+  const [versionError, setVersionError] = useState(null);
 
   const handleLogout = () => {
     if (window.confirm('Are you sure you want to logout?')) {
       logout();
+    }
+  };
+
+  useEffect(() => {
+    const loadVersion = async () => {
+      try {
+        setVersionLoading(true);
+        setVersionError(null);
+        const res = await fetch('https://ismaal.taamsolutions.net/api/app-version');
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Failed to load version');
+        setVersionForm({
+          latestVersion: data.latestVersion || '',
+          minVersion: data.minVersion || '',
+          androidUrl: data.androidUrl || '',
+          iosUrl: data.iosUrl || '',
+          forceUpdate: !!data.forceUpdate,
+          releaseNotes: data.releaseNotes || '',
+        });
+      } catch (err) {
+        setVersionError(err.message || 'Failed to load version');
+      } finally {
+        setVersionLoading(false);
+      }
+    };
+    loadVersion();
+  }, []);
+
+  const handleSaveVersion = async (e) => {
+    e.preventDefault();
+    try {
+      setVersionLoading(true);
+      setVersionError(null);
+      const res = await fetch('https://ismaal.taamsolutions.net/api/app-version', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(versionForm),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to save version');
+      alert('App version updated');
+    } catch (err) {
+      setVersionError(err.message || 'Failed to save version');
+    } finally {
+      setVersionLoading(false);
     }
   };
 
@@ -87,6 +142,15 @@ function Dashboard() {
               </svg>
               <span className="nav-tab-text">Users</span>
             </button>
+            <button
+              className={`nav-tab ${activeTab === 'appUpdate' ? 'active' : ''}`}
+              onClick={() => setActiveTab('appUpdate')}
+            >
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M5 10H15M10 5V15" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+              <span className="nav-tab-text">App Update</span>
+            </button>
           </div>
 
           {/* Logout Button */}
@@ -108,6 +172,98 @@ function Dashboard() {
         {activeTab === 'plans' && <Plans />}
         {activeTab === 'submissions' && <Submissions />}
         {activeTab === 'users' && <Users />}
+        {activeTab === 'appUpdate' && (
+          <div className="plans-container">
+            <div className="plans-header">
+              <div className="header-content">
+                <h1 className="plans-title">App Update</h1>
+                <p className="plans-subtitle">Set latest and minimum app versions</p>
+              </div>
+            </div>
+            {versionError && (
+              <div className="error-banner">
+                <span>{versionError}</span>
+                <button onClick={() => setVersionError(null)}>×</button>
+              </div>
+            )}
+            <form className="edit-plan-form" onSubmit={handleSaveVersion}>
+              <div className="form-body">
+                <div className="form-row">
+                  <div className="form-group">
+                    <label htmlFor="latestVersion">Latest Version</label>
+                    <input
+                      id="latestVersion"
+                      name="latestVersion"
+                      type="text"
+                      value={versionForm.latestVersion}
+                      onChange={(e) => setVersionForm({ ...versionForm, latestVersion: e.target.value })}
+                      placeholder="e.g. 1.2.0"
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="minVersion">Minimum Version</label>
+                    <input
+                      id="minVersion"
+                      name="minVersion"
+                      type="text"
+                      value={versionForm.minVersion}
+                      onChange={(e) => setVersionForm({ ...versionForm, minVersion: e.target.value })}
+                      placeholder="e.g. 1.0.0"
+                    />
+                  </div>
+                </div>
+                <div className="form-row">
+                  <div className="form-group">
+                    <label htmlFor="androidUrl">Google Play URL</label>
+                    <input
+                      id="androidUrl"
+                      name="androidUrl"
+                      type="text"
+                      value={versionForm.androidUrl}
+                      onChange={(e) => setVersionForm({ ...versionForm, androidUrl: e.target.value })}
+                      placeholder="https://play.google.com/store/apps/..."
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="iosUrl">App Store URL</label>
+                    <input
+                      id="iosUrl"
+                      name="iosUrl"
+                      type="text"
+                      value={versionForm.iosUrl}
+                      onChange={(e) => setVersionForm({ ...versionForm, iosUrl: e.target.value })}
+                      placeholder="https://apps.apple.com/..."
+                    />
+                  </div>
+                </div>
+                <div className="form-group">
+                  <label htmlFor="releaseNotes">Release Notes</label>
+                  <textarea
+                    id="releaseNotes"
+                    name="releaseNotes"
+                    rows="3"
+                    value={versionForm.releaseNotes}
+                    onChange={(e) => setVersionForm({ ...versionForm, releaseNotes: e.target.value })}
+                    placeholder="What’s new in this release?"
+                  />
+                </div>
+                <div className="form-group">
+                  <label>
+                    <input
+                      type="checkbox"
+                      checked={versionForm.forceUpdate}
+                      onChange={(e) => setVersionForm({ ...versionForm, forceUpdate: e.target.checked })}
+                    />
+                    Force update
+                  </label>
+                </div>
+                <button className="btn-refresh" type="submit" disabled={versionLoading}>
+                  {versionLoading ? 'Saving...' : 'Save Version'}
+                </button>
+              </div>
+            </form>
+          </div>
+        )}
       </main>
     </div>
   );
