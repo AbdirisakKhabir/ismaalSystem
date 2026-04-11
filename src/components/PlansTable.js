@@ -17,7 +17,7 @@ const PlansTable = ({ plans, onView, onEdit, onDelete, isLoading }) => {
   return (
     <div className="plans-table-container">
       <table className="plans-table">
-        <thead><tr><th>Plan Name</th><th>Description</th><th>Monthly</th><th>Yearly</th><th>Businesses</th><th>Products</th><th>Profile Status</th><th>Users</th><th>Created</th><th>Actions</th></tr></thead>
+        <thead><tr><th>Plan Name</th><th>Description</th><th>Monthly</th><th>Yearly</th><th>Businesses</th><th>Products</th><th>Prof. publish</th><th>Profile Status</th><th>Users</th><th>Created</th><th>Actions</th></tr></thead>
         <tbody>
           {plans.map((plan) => (
             <tr key={plan.id}>
@@ -27,6 +27,7 @@ const PlansTable = ({ plans, onView, onEdit, onDelete, isLoading }) => {
               <td><span className={`price-badge ${formatPrice(plan, 'YEARLY') === 'Free' ? 'free' : 'paid'}`}>{formatPrice(plan, 'YEARLY')}</span></td>
               <td>{plan.allowedBusinesses}</td>
               <td>{plan.allowedProducts}</td>
+              <td>{plan.allowProfessionalPublish !== false ? 'Yes' : 'No'}</td>
               <td>{plan.profile_status || 'N/A'}</td>
               <td>{plan.users?.length || 0}</td>
               <td>{formatDate(plan.createdAt)}</td>

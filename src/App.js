@@ -8,6 +8,7 @@ import Professionals from './components/Professionals';
 import Plans from './components/Plans';
 import Submissions from './components/Submissions';
 import Users from './components/Users';
+import System from './components/System';
 
 // Dashboard component (the main admin interface)
 function Dashboard() {
@@ -151,6 +152,15 @@ function Dashboard() {
               </svg>
               <span className="nav-tab-text">App Update</span>
             </button>
+            <button
+              className={`nav-tab ${activeTab === 'system' ? 'active' : ''}`}
+              onClick={() => setActiveTab('system')}
+            >
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M10 1.66667L11.6667 6.66667L16.6667 7.5L13.3333 11.25L14.1667 16.25L10 13.75L5.83333 16.25L6.66667 11.25L3.33333 7.5L8.33333 6.66667L10 1.66667Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+              <span className="nav-tab-text">System</span>
+            </button>
           </div>
 
           {/* Logout Button */}
@@ -172,6 +182,7 @@ function Dashboard() {
         {activeTab === 'plans' && <Plans />}
         {activeTab === 'submissions' && <Submissions />}
         {activeTab === 'users' && <Users />}
+        {activeTab === 'system' && <System />}
         {activeTab === 'appUpdate' && (
           <div className="plans-container">
             <div className="plans-header">

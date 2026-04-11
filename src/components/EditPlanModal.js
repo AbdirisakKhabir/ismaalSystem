@@ -10,6 +10,7 @@ const EditPlanModal = ({ plan, isOpen, onClose, onSave, isLoading }) => {
     allowedBusinesses: '',
     allowedProducts: '',
     profile_status: '',
+    allowProfessionalPublish: true,
   });
   const [errors, setErrors] = useState({});
 
@@ -24,6 +25,7 @@ const EditPlanModal = ({ plan, isOpen, onClose, onSave, isLoading }) => {
         allowedBusinesses: plan.allowedBusinesses?.toString() || '0',
         allowedProducts: plan.allowedProducts?.toString() || '0',
         profile_status: plan.profile_status || 'Active',
+        allowProfessionalPublish: plan.allowProfessionalPublish !== false,
       });
       setErrors({});
     }
@@ -65,10 +67,11 @@ const EditPlanModal = ({ plan, isOpen, onClose, onSave, isLoading }) => {
   };
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value, type, checked } = e.target;
+    const nextVal = type === 'checkbox' ? checked : value;
     setFormData((prev) => ({
       ...prev,
-      [name]: value,
+      [name]: nextVal,
     }));
     // Clear error when field is modified
     if (errors[name]) {
@@ -91,6 +94,7 @@ const EditPlanModal = ({ plan, isOpen, onClose, onSave, isLoading }) => {
         allowedBusinesses: parseInt(formData.allowedBusinesses),
         allowedProducts: parseInt(formData.allowedProducts),
         profile_status: formData.profile_status.trim(),
+        allowProfessionalPublish: !!formData.allowProfessionalPublish,
       };
       onSave(updatedData);
     }
@@ -246,6 +250,22 @@ const EditPlanModal = ({ plan, isOpen, onClose, onSave, isLoading }) => {
                 />
                 {errors.allowedProducts && <span className="error-message">{errors.allowedProducts}</span>}
               </div>
+            </div>
+
+            {/* Professional directory publishing (subscription) */}
+            <div className="form-group form-checkbox-row">
+              <label htmlFor="allowProfessionalPublish" className="checkbox-label">
+                <input
+                  type="checkbox"
+                  id="allowProfessionalPublish"
+                  name="allowProfessionalPublish"
+                  checked={!!formData.allowProfessionalPublish}
+                  onChange={handleChange}
+                  disabled={isLoading}
+                />
+                <span>Allow subscribers to publish professional profiles in the People directory</span>
+              </label>
+              <p className="field-hint">Business and product listings are never controlled by this option.</p>
             </div>
 
             {/* Profile Status */}

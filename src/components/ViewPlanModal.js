@@ -82,6 +82,12 @@ const ViewPlanModal = ({ plan, isOpen, onClose }) => {
                 {plan.profile_status || 'N/A'}
               </span>
             </div>
+            <div className="overview-details">
+              <span className="overview-label">People directory (professionals)</span>
+              <span className="overview-value">
+                {plan.allowProfessionalPublish !== false ? 'Allowed' : 'Not allowed'}
+              </span>
+            </div>
           </div>
 
           {/* Description */}

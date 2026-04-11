@@ -227,6 +227,27 @@
   }
 }
 
+.form-checkbox-row .checkbox-label {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-weight: 500;
+  color: #374151;
+  cursor: pointer;
+}
+
+.form-checkbox-row .checkbox-label input {
+  margin-top: 3px;
+  flex-shrink: 0;
+}
+
+.form-checkbox-row .field-hint {
+  margin: 6px 0 0 28px;
+  font-size: 13px;
+  color: #6b7280;
+  line-height: 1.4;
+}
+
 /* Responsive */
 @media (max-width: 640px) {
   .edit-plan-modal {
