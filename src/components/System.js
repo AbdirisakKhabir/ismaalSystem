@@ -258,8 +258,10 @@ const System = () => {
                           </label>
                         </td>
                         <td className="system-actions-cell">
-                          <button type="button" className="btn-refresh" onClick={saveEdit} disabled={saving}>Save</button>
-                          <button type="button" className="logout-btn system-btn-gap" onClick={cancelEdit}>Cancel</button>
+                          <div className="system-actions-group">
+                            <button type="button" className="system-btn system-btn-edit" onClick={saveEdit} disabled={saving}>Save</button>
+                            <button type="button" className="system-btn system-btn-cancel" onClick={cancelEdit}>Cancel</button>
+                          </div>
                         </td>
                       </>
                     ) : (
@@ -272,8 +274,10 @@ const System = () => {
                           </span>
                         </td>
                         <td className="system-actions-cell">
-                          <button type="button" className="btn-refresh" onClick={() => startEdit(row)}>Edit</button>
-                          <button type="button" className="logout-btn system-btn-gap" onClick={() => handleDelete(row)}>Delete</button>
+                          <div className="system-actions-group">
+                            <button type="button" className="system-btn system-btn-edit" onClick={() => startEdit(row)}>Edit</button>
+                            <button type="button" className="system-btn system-btn-delete" onClick={() => handleDelete(row)}>Delete</button>
+                          </div>
                         </td>
                       </>
                     )}
