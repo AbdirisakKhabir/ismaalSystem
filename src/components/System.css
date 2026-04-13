@@ -1,0 +1,137 @@
+.system-toolbar {
+  padding: 0 24px 16px;
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+#system-city-tab,
+#system-category-tab {
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 9px 16px;
+  background: #ffffff;
+  color: #374151;
+  transition: all 0.2s ease;
+}
+
+#system-city-tab.active,
+#system-category-tab.active {
+  background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+  color: #ffffff;
+  border-color: #8b5cf6;
+  box-shadow: 0 8px 18px rgba(139, 92, 246, 0.25);
+}
+
+.system-select {
+  padding: 9px 12px;
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+  background: #ffffff;
+  color: #374151;
+  min-width: 160px;
+}
+
+.system-form {
+  margin-bottom: 24px;
+}
+
+.system-form .form-body {
+  padding-top: 0;
+}
+
+.system-form-action {
+  align-self: flex-end;
+}
+
+.system-loading {
+  padding: 24px;
+}
+
+.system-table-wrapper {
+  overflow-x: auto;
+  border-radius: 14px;
+  box-shadow: 0 6px 18px rgba(139, 92, 246, 0.1);
+  background: #ffffff;
+}
+
+.system-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.system-table thead {
+  background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+  color: #ffffff;
+}
+
+.system-table th,
+.system-table td {
+  padding: 12px;
+  text-align: left;
+}
+
+.system-actions-head,
+.system-actions-cell {
+  text-align: right !important;
+}
+
+.system-table tbody tr {
+  border-top: 1px solid #f1f5f9;
+}
+
+.system-table tbody tr:hover {
+  background: #faf5ff;
+}
+
+.system-input-name,
+.system-input-sort {
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  padding: 8px 10px;
+  font: inherit;
+}
+
+.system-input-name {
+  width: 100%;
+  max-width: 280px;
+}
+
+.system-input-sort {
+  width: 80px;
+}
+
+.system-checkbox-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.system-btn-gap {
+  margin-left: 8px;
+}
+
+.system-badge-active,
+.system-badge-inactive {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.system-badge-active {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.system-badge-inactive {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.system-empty {
+  padding: 16px;
+  color: #6b7280;
+}
