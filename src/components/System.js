@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { systemApi } from '../services/systemApi';
 import './Plans.css';
+import './System.css';
 
 const CATEGORY_TYPES = [
   { value: 'business', label: 'Business' },
@@ -160,11 +161,11 @@ const System = () => {
         </div>
       )}
 
-      <div style={{ padding: '0 24px 16px', display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'center' }}>
+      <div className="system-toolbar">
         <button
           type="button"
           className={section === 'cities' ? 'nav-tab active' : 'nav-tab'}
-          style={{ border: '1px solid var(--border, #e5e7eb)', borderRadius: 8, padding: '8px 16px', background: section === 'cities' ? 'var(--primary, #3b82f6)' : '#fff', color: section === 'cities' ? '#fff' : 'inherit' }}
+          id="system-city-tab"
           onClick={() => { setSection('cities'); setEditingId(null); }}
         >
           Cities
@@ -172,7 +173,7 @@ const System = () => {
         <button
           type="button"
           className={section === 'categories' ? 'nav-tab active' : 'nav-tab'}
-          style={{ border: '1px solid var(--border, #e5e7eb)', borderRadius: 8, padding: '8px 16px', background: section === 'categories' ? 'var(--primary, #3b82f6)' : '#fff', color: section === 'categories' ? '#fff' : 'inherit' }}
+          id="system-category-tab"
           onClick={() => { setSection('categories'); setEditingId(null); }}
         >
           Categories
@@ -181,7 +182,7 @@ const System = () => {
           <select
             value={categoryType}
             onChange={(e) => { setCategoryType(e.target.value); setEditingId(null); }}
-            style={{ padding: '8px 12px', borderRadius: 8, border: '1px solid #e5e7eb' }}
+            className="system-select"
           >
             {CATEGORY_TYPES.map((o) => (
               <option key={o.value} value={o.value}>{o.label}</option>
@@ -190,8 +191,8 @@ const System = () => {
         )}
       </div>
 
-      <form className="edit-plan-form" onSubmit={handleAdd} style={{ marginBottom: 24 }}>
-        <div className="form-body" style={{ paddingTop: 0 }}>
+      <form className="edit-plan-form system-form" onSubmit={handleAdd}>
+        <div className="form-body">
           <div className="form-row">
             <div className="form-group">
               <label htmlFor="sysNewName">{section === 'cities' ? 'New city' : 'New category'}</label>
@@ -211,7 +212,7 @@ const System = () => {
                 onChange={(e) => setNewSort(e.target.value)}
               />
             </div>
-            <div className="form-group" style={{ alignSelf: 'flex-end' }}>
+            <div className="form-group system-form-action">
               <button type="submit" className="btn-refresh" disabled={saving || !newName.trim()}>
                 {saving ? 'Saving…' : 'Add'}
               </button>
@@ -222,39 +223,39 @@ const System = () => {
 
       <div className="plans-content">
         {loading ? (
-          <p style={{ padding: 24 }}>Loading…</p>
+          <p className="system-loading">Loading…</p>
         ) : (
-          <div className="table-wrapper" style={{ overflowX: 'auto' }}>
-            <table className="data-table" style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <div className="table-wrapper system-table-wrapper">
+            <table className="data-table system-table">
               <thead>
                 <tr>
-                  <th style={{ textAlign: 'left', padding: 12 }}>Name</th>
+                  <th>Name</th>
                   {section === 'categories' && (
-                    <th style={{ textAlign: 'left', padding: 12 }}>Type</th>
+                    <th>Type</th>
                   )}
-                  <th style={{ textAlign: 'left', padding: 12 }}>Sort</th>
-                  <th style={{ textAlign: 'left', padding: 12 }}>Active</th>
-                  <th style={{ textAlign: 'right', padding: 12 }}>Actions</th>
+                  <th>Sort</th>
+                  <th>Active</th>
+                  <th className="system-actions-head">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {rows.map((row) => (
-                  <tr key={row.id} style={{ borderTop: '1px solid #eee' }}>
+                  <tr key={row.id}>
                     {editingId === row.id ? (
                       <>
-                        <td style={{ padding: 8 }}>
+                        <td>
                           <input
                             value={editName}
                             onChange={(e) => setEditName(e.target.value)}
-                            style={{ width: '100%', maxWidth: 280, padding: 8 }}
+                            className="system-input-name"
                           />
                         </td>
                         {section === 'categories' && (
-                          <td style={{ padding: 8 }}>
+                          <td>
                             <select
                               value={editCategoryType}
                               onChange={(e) => setEditCategoryType(e.target.value)}
-                              style={{ padding: 8, borderRadius: 6, border: '1px solid #e5e7eb' }}
+                              className="system-select"
                             >
                               {CATEGORY_TYPES.map((o) => (
                                 <option key={o.value} value={o.value}>{o.label}</option>
@@ -262,39 +263,50 @@ const System = () => {
                             </select>
                           </td>
                         )}
-                        <td style={{ padding: 8 }}>
+                        <td>
                           <input
                             type="number"
                             value={editSort}
                             onChange={(e) => setEditSort(e.target.value)}
-                            style={{ width: 80, padding: 8 }}
+                            className="system-input-sort"
                           />
                         </td>
-                        <td style={{ padding: 8 }}>
-                          <label>
+                        <td>
+                          <label className="system-checkbox-wrap">
                             <input
                               type="checkbox"
                               checked={editActive}
                               onChange={(e) => setEditActive(e.target.checked)}
                             />
+                            <span>{editActive ? 'Active' : 'Inactive'}</span>
                           </label>
                         </td>
-                        <td style={{ padding: 8, textAlign: 'right' }}>
-                          <button type="button" className="btn-refresh" onClick={saveEdit} disabled={saving}>Save</button>
-                          <button type="button" className="logout-btn" style={{ marginLeft: 8 }} onClick={cancelEdit}>Cancel</button>
+                        <td className="system-actions-cell">
+                          <div className="system-actions-group">
+                            <button type="button" className="system-btn system-btn-edit" onClick={saveEdit} disabled={saving}>Save</button>
+                            <button type="button" className="system-btn system-btn-cancel" onClick={cancelEdit}>Cancel</button>
+                          </div>
                         </td>
                       </>
                     ) : (
                       <>
-                        <td style={{ padding: 12 }}>{row.name}</td>
+                        <td>{row.name}</td>
                         {section === 'categories' && (
-                          <td style={{ padding: 12 }}>{row.type}</td>
+                          <td>
+                            <span className="system-type-pill">{row.type}</span>
+                          </td>
                         )}
-                        <td style={{ padding: 12 }}>{row.sortOrder}</td>
-                        <td style={{ padding: 12 }}>{row.active ? 'Yes' : 'No'}</td>
-                        <td style={{ padding: 12, textAlign: 'right' }}>
-                          <button type="button" className="btn-refresh" onClick={() => startEdit(row)}>Edit</button>
-                          <button type="button" className="logout-btn" style={{ marginLeft: 8 }} onClick={() => handleDelete(row)}>Delete</button>
+                        <td>{row.sortOrder}</td>
+                        <td>
+                          <span className={row.active ? 'system-badge-active' : 'system-badge-inactive'}>
+                            {row.active ? 'Active' : 'Inactive'}
+                          </span>
+                        </td>
+                        <td className="system-actions-cell">
+                          <div className="system-actions-group">
+                            <button type="button" className="system-btn system-btn-edit" onClick={() => startEdit(row)}>Edit</button>
+                            <button type="button" className="system-btn system-btn-delete" onClick={() => handleDelete(row)}>Delete</button>
+                          </div>
                         </td>
                       </>
                     )}
@@ -303,7 +315,7 @@ const System = () => {
               </tbody>
             </table>
             {!rows.length && !loading && (
-              <p style={{ padding: 16, color: '#6b7280' }}>No rows yet. Run DB seed or add items above.</p>
+              <p className="system-empty">No rows yet. Run DB seed or add items above.</p>
             )}
           </div>
         )}

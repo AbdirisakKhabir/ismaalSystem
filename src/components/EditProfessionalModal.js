@@ -139,28 +139,19 @@ const EditProfessionalModal = ({ professional, isOpen, onClose, onSave, isLoadin
 
           <div className="form-group">
             <label>Professions <span className="required">*</span></label>
-            <div
-              style={{
-                maxHeight: 200,
-                overflowY: 'auto',
-                border: '2px solid #e5e7eb',
-                borderRadius: 8,
-                padding: 12,
-                background: '#fafafa',
-              }}
-            >
+            <div className="selection-list">
               {lookupsLoading ? (
-                <span style={{ color: '#6b7280' }}>Loading…</span>
+                <span className="selection-loading">Loading…</span>
               ) : (
                 <>
                   {orphanProf.map((n) => (
-                    <label key={`o-${n}`} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8, cursor: 'pointer' }}>
+                    <label key={`o-${n}`} className="selection-item">
                       <input type="checkbox" checked={form.professionSelections.includes(n)} onChange={() => toggleProfession(n)} />
-                      <span>{n} <em style={{ color: '#9ca3af' }}>(current)</em></span>
+                      <span>{n} <em className="selection-current">(current)</em></span>
                     </label>
                   ))}
                   {professionNames.map((n) => (
-                    <label key={n} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8, cursor: 'pointer' }}>
+                    <label key={n} className="selection-item">
                       <input type="checkbox" checked={form.professionSelections.includes(n)} onChange={() => toggleProfession(n)} />
                       <span>{n}</span>
                     </label>
