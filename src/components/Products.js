@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import ProductsTable from './ProductsTable';
 import ViewProductModal from './ViewProductModal';
+import EditProductModal from './EditProductModal';
 import DeleteProductModal from './DeleteProductModal';
 import Pagination from './Pagination';
 import { productApi } from '../services/productApi';
@@ -12,6 +13,9 @@ const Products = () => {
   const [error, setError] = useState(null);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [viewingProduct, setViewingProduct] = useState(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editingProduct, setEditingProduct] = useState(null);
+  const [isSaving, setIsSaving] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [deletingProduct, setDeletingProduct] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -36,6 +40,28 @@ const Products = () => {
 
   const handleViewClick = (product) => { setViewingProduct(product); setIsViewModalOpen(true); };
   const handleCloseViewModal = () => { setIsViewModalOpen(false); setViewingProduct(null); };
+  const handleEditClick = (product) => { setEditingProduct(product); setIsEditModalOpen(true); };
+  const handleCloseEditModal = () => { setIsEditModalOpen(false); setEditingProduct(null); };
+
+  const handleSaveProductEdit = async (payload) => {
+    if (!editingProduct) return;
+    try {
+      setIsSaving(true);
+      await productApi.updateProduct(editingProduct.id, payload);
+      setProducts((prev) =>
+        prev.map((p) => (p.id === editingProduct.id ? { ...p, ...payload } : p))
+      );
+      setIsEditModalOpen(false);
+      setEditingProduct(null);
+      alert('Product updated.');
+    } catch (err) {
+      console.error(err);
+      alert(err.response?.data?.error || err.message || 'Failed to update product. Ensure PATCH /api/products/:id exists for admins.');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   const handleDeleteClick = (product) => { setDeletingProduct(product); setIsDeleteModalOpen(true); };
 
   const handleDeleteConfirm = async () => {
@@ -78,12 +104,25 @@ const Products = () => {
       </div>
       {error && <div className="error-banner"><span>{error}</span><button onClick={() => setError(null)} className="error-close">×</button></div>}
       <div className="products-content">
-        <ProductsTable products={paginatedProducts} onView={handleViewClick} onDelete={handleDeleteClick} isLoading={isLoading} />
+        <ProductsTable
+          products={paginatedProducts}
+          onView={handleViewClick}
+          onEdit={handleEditClick}
+          onDelete={handleDeleteClick}
+          isLoading={isLoading}
+        />
         {!isLoading && products.length > 0 && (
           <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} totalItems={products.length} itemsPerPage={itemsPerPage} onItemsPerPageChange={(n) => { setItemsPerPage(n); setCurrentPage(1); }} />
         )}
       </div>
       <ViewProductModal product={viewingProduct} isOpen={isViewModalOpen} onClose={handleCloseViewModal} />
+      <EditProductModal
+        product={editingProduct}
+        isOpen={isEditModalOpen}
+        onClose={handleCloseEditModal}
+        onSave={handleSaveProductEdit}
+        isLoading={isSaving}
+      />
       <DeleteProductModal product={deletingProduct} isOpen={isDeleteModalOpen} onClose={handleCloseDeleteModal} onConfirm={handleDeleteConfirm} isLoading={isDeleting} />
     </div>
   );

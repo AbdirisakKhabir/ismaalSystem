@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { adminHeaders } from './systemApi';
 
 const API_BASE_URL = 'https://ismaal.taamsolutions.net';
 
@@ -30,6 +31,19 @@ export const professionalApi = {
       return response.data;
     } catch (error) {
       console.error('Error fetching professional:', error);
+      throw error;
+    }
+  },
+
+  // Update professional (admin)
+  updateProfessional: async (id, data) => {
+    try {
+      const response = await api.patch(`/api/professionals/${id}`, data, {
+        headers: { ...adminHeaders() },
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error updating professional:', error);
       throw error;
     }
   },

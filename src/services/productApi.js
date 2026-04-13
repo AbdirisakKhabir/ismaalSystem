@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { adminHeaders } from './systemApi';
 
 const API_BASE_URL = 'https://ismaal.taamsolutions.net';
 
@@ -30,6 +31,19 @@ export const productApi = {
       return response.data;
     } catch (error) {
       console.error('Error fetching product:', error);
+      throw error;
+    }
+  },
+
+  // Update product (admin — same x-user-id pattern as businesses)
+  updateProduct: async (id, data) => {
+    try {
+      const response = await api.patch(`/api/products/${id}`, data, {
+        headers: { ...adminHeaders() },
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error updating product:', error);
       throw error;
     }
   },

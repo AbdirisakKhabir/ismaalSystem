@@ -9,7 +9,7 @@ const api = axios.create({
   },
 });
 
-function adminHeaders() {
+export function adminHeaders() {
   try {
     const raw = localStorage.getItem('adminUser');
     if (!raw) return {};

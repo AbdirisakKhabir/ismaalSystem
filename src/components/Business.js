@@ -4,9 +4,13 @@ import EditBusinessModal from './EditBusinessModal';
 import DeleteConfirmModal from './DeleteConfirmModal';
 import Pagination from './Pagination';
 import { businessApi } from '../services/businessApi';
+import { useAuth } from '../context/AuthContext';
 import './Business.css';
 
 const Business = () => {
+  const { user } = useAuth();
+  const userId = user?.id;
+
   const [businesses, setBusinesses] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -16,14 +20,9 @@ const Business = () => {
   const [deletingBusiness, setDeletingBusiness] = useState(null);
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [userId, setUserId] = useState(null);
 
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
-
-  useEffect(() => {
-    setUserId(1);
-  }, []);
 
   useEffect(() => {
     fetchBusinesses();
