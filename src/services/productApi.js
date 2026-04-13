@@ -13,10 +13,12 @@ const api = axios.create({
 
 // Product API functions
 export const productApi = {
-  // Get all products
+  // All products (admin list — every status)
   getAllProducts: async () => {
     try {
-      const response = await api.get('/api/products');
+      const response = await api.get('/api/admin/products', {
+        headers: { ...adminHeaders() },
+      });
       return response.data;
     } catch (error) {
       console.error('Error fetching products:', error);

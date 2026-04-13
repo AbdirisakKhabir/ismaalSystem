@@ -11,18 +11,40 @@ const parseProfessions = (prof) => {
     .filter(Boolean);
 };
 
+const STATUS_OPTIONS = ['PENDING', 'APPROVED', 'REJECTED', 'ACTIVE', 'INACTIVE'];
+
 const EditProfessionalModal = ({ professional, isOpen, onClose, onSave, isLoading }) => {
-  const [location, setLocation] = useState('');
-  const [selectedProfessions, setSelectedProfessions] = useState([]);
+  const [form, setForm] = useState({
+    specialty: '',
+    experience: '',
+    location: '',
+    phone: '',
+    email: '',
+    description: '',
+    image: '',
+    status: 'PENDING',
+    published: true,
+    professionSelections: [],
+  });
+
   const [cityNames, setCityNames] = useState([]);
   const [professionNames, setProfessionNames] = useState([]);
   const [lookupsLoading, setLookupsLoading] = useState(false);
 
   useEffect(() => {
-    if (professional) {
-      setLocation(professional.location || '');
-      setSelectedProfessions(parseProfessions(professional.profession));
-    }
+    if (!professional) return;
+    setForm({
+      specialty: professional.specialty || '',
+      experience: professional.experience || '',
+      location: professional.location || '',
+      phone: professional.phone || '',
+      email: professional.email || '',
+      description: professional.description || '',
+      image: professional.image || '',
+      status: professional.status || 'PENDING',
+      published: professional.published !== false,
+      professionSelections: parseProfessions(professional.profession),
+    });
   }, [professional]);
 
   useEffect(() => {
@@ -60,39 +82,51 @@ const EditProfessionalModal = ({ professional, isOpen, onClose, onSave, isLoadin
     };
   }, [isOpen]);
 
+  const setField = (name, value) => setForm((prev) => ({ ...prev, [name]: value }));
+
   const toggleProfession = (name) => {
-    setSelectedProfessions((prev) =>
-      prev.includes(name) ? prev.filter((x) => x !== name) : [...prev, name]
-    );
+    setForm((prev) => {
+      const sel = prev.professionSelections;
+      const next = sel.includes(name) ? sel.filter((x) => x !== name) : [...sel, name];
+      return { ...prev, professionSelections: next };
+    });
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!location.trim()) {
-      alert('Please select a city.');
+    if (form.professionSelections.length === 0) {
+      alert('Select at least one profession.');
       return;
     }
-    if (selectedProfessions.length === 0) {
-      alert('Select at least one profession category.');
+    if (!form.location.trim()) {
+      alert('Select a city.');
       return;
     }
     onSave({
-      location: location.trim(),
-      profession: selectedProfessions,
+      profession: form.professionSelections.join(', '),
+      specialty: form.specialty.trim(),
+      experience: form.experience.trim(),
+      location: form.location.trim(),
+      phone: form.phone.trim(),
+      email: form.email.trim(),
+      description: form.description.trim() || null,
+      image: form.image,
+      status: form.status,
+      published: form.published,
     });
   };
 
   if (!isOpen || !professional) return null;
 
-  const orphanProf = selectedProfessions.filter((p) => !professionNames.includes(p));
+  const orphanProf = form.professionSelections.filter((p) => !professionNames.includes(p));
 
   return (
     <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+      <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 640 }}>
         <div className="modal-header">
-          <h2>Edit professional city &amp; professions</h2>
+          <h2>Edit professional</h2>
           <button type="button" className="modal-close" onClick={onClose} aria-label="Close">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
               <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </button>
@@ -100,44 +134,14 @@ const EditProfessionalModal = ({ professional, isOpen, onClose, onSave, isLoadin
 
         <form onSubmit={handleSubmit} className="edit-business-form">
           <p style={{ margin: '0 0 16px', color: '#6b7280', fontSize: 14 }}>
-            {professional.specialty || `Professional #${professional.id}`}
+            User #{professional.userId} · Record #{professional.id}
           </p>
 
           <div className="form-group">
-            <label htmlFor="profCity">
-              City / location <span className="required">*</span>
-            </label>
-            <select
-              id="profCity"
-              value={location}
-              onChange={(e) => setLocation(e.target.value)}
-              className={!location.trim() ? 'input-error' : ''}
-              disabled={lookupsLoading}
-            >
-              <option value="">{lookupsLoading ? 'Loading cities…' : 'Select city'}</option>
-              {location && !cityNames.includes(location) && (
-                <option value={location}>{location} (current)</option>
-              )}
-              {cityNames.map((n) => (
-                <option key={n} value={n}>
-                  {n}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="form-group">
-            <label>
-              Professions <span className="required">*</span>
-            </label>
-            {orphanProf.length > 0 && (
-              <p style={{ marginBottom: 8, fontSize: 12, color: '#6b7280' }}>
-                Some current values are not in System → Profession categories.
-              </p>
-            )}
+            <label>Professions <span className="required">*</span></label>
             <div
               style={{
-                maxHeight: 220,
+                maxHeight: 200,
                 overflowY: 'auto',
                 border: '2px solid #e5e7eb',
                 borderRadius: 8,
@@ -150,30 +154,14 @@ const EditProfessionalModal = ({ professional, isOpen, onClose, onSave, isLoadin
               ) : (
                 <>
                   {orphanProf.map((n) => (
-                    <label
-                      key={`orphan-${n}`}
-                      style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8, cursor: 'pointer' }}
-                    >
-                      <input
-                        type="checkbox"
-                        checked={selectedProfessions.includes(n)}
-                        onChange={() => toggleProfession(n)}
-                      />
-                      <span>
-                        {n} <em style={{ color: '#9ca3af' }}>(current)</em>
-                      </span>
+                    <label key={`o-${n}`} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8, cursor: 'pointer' }}>
+                      <input type="checkbox" checked={form.professionSelections.includes(n)} onChange={() => toggleProfession(n)} />
+                      <span>{n} <em style={{ color: '#9ca3af' }}>(current)</em></span>
                     </label>
                   ))}
                   {professionNames.map((n) => (
-                    <label
-                      key={n}
-                      style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8, cursor: 'pointer' }}
-                    >
-                      <input
-                        type="checkbox"
-                        checked={selectedProfessions.includes(n)}
-                        onChange={() => toggleProfession(n)}
-                      />
+                    <label key={n} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8, cursor: 'pointer' }}>
+                      <input type="checkbox" checked={form.professionSelections.includes(n)} onChange={() => toggleProfession(n)} />
                       <span>{n}</span>
                     </label>
                   ))}
@@ -182,19 +170,82 @@ const EditProfessionalModal = ({ professional, isOpen, onClose, onSave, isLoadin
             </div>
           </div>
 
+          <div className="form-group">
+            <label htmlFor="pspec">Specialty <span className="required">*</span></label>
+            <input id="pspec" value={form.specialty} onChange={(e) => setField('specialty', e.target.value)} required />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="pexp">Experience <span className="required">*</span></label>
+            <input id="pexp" value={form.experience} onChange={(e) => setField('experience', e.target.value)} required />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="ploc">City / location <span className="required">*</span></label>
+            <select
+              id="ploc"
+              value={form.location}
+              onChange={(e) => setField('location', e.target.value)}
+              disabled={lookupsLoading}
+            >
+              <option value="">{lookupsLoading ? 'Loading…' : 'Select city'}</option>
+              {form.location && !cityNames.includes(form.location) && (
+                <option value={form.location}>{form.location} (current)</option>
+              )}
+              {cityNames.map((n) => (
+                <option key={n} value={n}>{n}</option>
+              ))}
+            </select>
+          </div>
+
+          <div className="form-row">
+            <div className="form-group">
+              <label htmlFor="pphone">Phone <span className="required">*</span></label>
+              <input id="pphone" type="tel" value={form.phone} onChange={(e) => setField('phone', e.target.value)} required />
+            </div>
+            <div className="form-group">
+              <label htmlFor="pmail">Email <span className="required">*</span></label>
+              <input id="pmail" type="email" value={form.email} onChange={(e) => setField('email', e.target.value)} required />
+            </div>
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="pdesc">Description</label>
+            <textarea id="pdesc" value={form.description} onChange={(e) => setField('description', e.target.value)} rows={4} />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="pimg">Image URL</label>
+            <input id="pimg" value={form.image} onChange={(e) => setField('image', e.target.value)} />
+          </div>
+
+          <div className="form-row">
+            <div className="form-group">
+              <label htmlFor="pst">Status</label>
+              <select id="pst" value={form.status} onChange={(e) => setField('status', e.target.value)}>
+                {STATUS_OPTIONS.map((s) => (
+                  <option key={s} value={s}>{s}</option>
+                ))}
+              </select>
+            </div>
+            <div className="form-group" style={{ alignSelf: 'flex-end' }}>
+              <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
+                <input
+                  type="checkbox"
+                  checked={form.published}
+                  onChange={(e) => setField('published', e.target.checked)}
+                />
+                Published (directory)
+              </label>
+            </div>
+          </div>
+
           <div className="modal-footer">
             <button type="button" className="btn-cancel" onClick={onClose} disabled={isLoading}>
               Cancel
             </button>
             <button type="submit" className="btn-save" disabled={isLoading || lookupsLoading}>
-              {isLoading ? (
-                <>
-                  <span className="spinner-small" />
-                  Saving…
-                </>
-              ) : (
-                'Save'
-              )}
+              {isLoading ? 'Saving…' : 'Save'}
             </button>
           </div>
         </form>

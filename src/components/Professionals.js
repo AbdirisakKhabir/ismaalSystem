@@ -46,9 +46,10 @@ const Professionals = () => {
     if (!editingProfessional) return;
     try {
       setIsSaving(true);
-      await professionalApi.updateProfessional(editingProfessional.id, payload);
+      const res = await professionalApi.updateProfessional(editingProfessional.id, payload);
+      const next = res.professional || res;
       setProfessionals((prev) =>
-        prev.map((p) => (p.id === editingProfessional.id ? { ...p, ...payload } : p))
+        prev.map((p) => (p.id === editingProfessional.id ? { ...p, ...next } : p))
       );
       setIsEditModalOpen(false);
       setEditingProfessional(null);

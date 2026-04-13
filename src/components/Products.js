@@ -47,9 +47,10 @@ const Products = () => {
     if (!editingProduct) return;
     try {
       setIsSaving(true);
-      await productApi.updateProduct(editingProduct.id, payload);
+      const res = await productApi.updateProduct(editingProduct.id, payload);
+      const next = res.product || res;
       setProducts((prev) =>
-        prev.map((p) => (p.id === editingProduct.id ? { ...p, ...payload } : p))
+        prev.map((p) => (p.id === editingProduct.id ? { ...p, ...next } : p))
       );
       setIsEditModalOpen(false);
       setEditingProduct(null);

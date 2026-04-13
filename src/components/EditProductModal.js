@@ -11,18 +11,49 @@ const parseCategories = (cat) => {
     .filter(Boolean);
 };
 
+const PRICE_OPTIONS = ['Fixed', 'Range', 'Negotiable', 'Crossed'];
+const STATUS_OPTIONS = ['PENDING', 'APPROVED', 'REJECTED', 'ACTIVE', 'INACTIVE'];
+const CONDITION = ['New', 'Used', 'Refurbished'];
+
 const EditProductModal = ({ product, isOpen, onClose, onSave, isLoading }) => {
-  const [location, setLocation] = useState('');
-  const [selectedCategories, setSelectedCategories] = useState([]);
+  const [form, setForm] = useState({
+    name: '',
+    description: '',
+    price: '',
+    price_to: '',
+    price_option: 'Fixed',
+    crossed_price: '',
+    categorySelections: [],
+    type: 'New',
+    posted_from: 'Personal',
+    location: '',
+    image: '',
+    status: 'PENDING',
+  });
+
   const [cityNames, setCityNames] = useState([]);
   const [categoryNames, setCategoryNames] = useState([]);
   const [lookupsLoading, setLookupsLoading] = useState(false);
 
   useEffect(() => {
-    if (product) {
-      setLocation(product.location || '');
-      setSelectedCategories(parseCategories(product.category));
-    }
+    if (!product) return;
+    const p = product.price != null ? String(product.price) : '';
+    const pt = product.price_to != null ? String(product.price_to) : '';
+    const cx = product.crossed_price != null ? String(product.crossed_price) : '';
+    setForm({
+      name: product.name || '',
+      description: product.description || '',
+      price: p,
+      price_to: pt,
+      price_option: product.price_option || 'Fixed',
+      crossed_price: cx,
+      categorySelections: parseCategories(product.category),
+      type: product.type || 'New',
+      posted_from: product.posted_from || 'Personal',
+      location: product.location || '',
+      image: product.image || '',
+      status: product.status || 'PENDING',
+    });
   }, [product]);
 
   useEffect(() => {
@@ -60,89 +91,139 @@ const EditProductModal = ({ product, isOpen, onClose, onSave, isLoading }) => {
     };
   }, [isOpen]);
 
+  const setField = (name, value) => setForm((prev) => ({ ...prev, [name]: value }));
+
   const toggleCategory = (name) => {
-    setSelectedCategories((prev) =>
-      prev.includes(name) ? prev.filter((x) => x !== name) : [...prev, name]
-    );
+    setForm((prev) => {
+      const sel = prev.categorySelections;
+      const next = sel.includes(name) ? sel.filter((x) => x !== name) : [...sel, name];
+      return { ...prev, categorySelections: next };
+    });
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!location.trim()) {
-      alert('Please select a city.');
+    if (!form.name.trim()) {
+      alert('Name is required.');
       return;
     }
-    if (selectedCategories.length === 0) {
-      alert('Select at least one product category.');
+    if (!form.location.trim()) {
+      alert('Select a city / location.');
       return;
     }
-    onSave({
-      location: location.trim(),
-      category: selectedCategories.join(', '),
-    });
+    if (form.categorySelections.length === 0) {
+      alert('Select at least one category.');
+      return;
+    }
+    const payload = {
+      name: form.name.trim(),
+      description: form.description,
+      price: form.price === '' ? undefined : parseFloat(form.price),
+      price_to: form.price_to === '' ? undefined : parseFloat(form.price_to),
+      price_option: form.price_option,
+      crossed_price: form.crossed_price === '' ? undefined : parseFloat(form.crossed_price),
+      category: form.categorySelections.join(', '),
+      type: form.type,
+      posted_from: form.posted_from.trim(),
+      location: form.location.trim(),
+      image: form.image,
+      status: form.status,
+    };
+    onSave(payload);
   };
 
   if (!isOpen || !product) return null;
 
-  const orphanCats = selectedCategories.filter((c) => !categoryNames.includes(c));
+  const orphanCats = form.categorySelections.filter((c) => !categoryNames.includes(c));
 
   return (
     <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+      <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 640 }}>
         <div className="modal-header">
-          <h2>Edit product location &amp; categories</h2>
+          <h2>Edit product</h2>
           <button type="button" className="modal-close" onClick={onClose} aria-label="Close">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
               <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </button>
         </div>
 
         <form onSubmit={handleSubmit} className="edit-business-form">
-          <p style={{ margin: '0 0 16px', color: '#6b7280', fontSize: 14 }}>
-            {product.name}
-          </p>
-
           <div className="form-group">
-            <label htmlFor="productCity">
-              City / location <span className="required">*</span>
-            </label>
-            <select
-              id="productCity"
-              value={location}
-              onChange={(e) => setLocation(e.target.value)}
-              className={!location.trim() ? 'input-error' : ''}
-              disabled={lookupsLoading}
-            >
-              <option value="">{lookupsLoading ? 'Loading cities…' : 'Select city'}</option>
-              {location && !cityNames.includes(location) && (
-                <option value={location}>{location} (current)</option>
-              )}
-              {cityNames.map((n) => (
-                <option key={n} value={n}>
-                  {n}
-                </option>
-              ))}
-            </select>
-            {location && !cityNames.includes(location) && (
-              <p style={{ marginTop: 4, fontSize: 12, color: '#6b7280' }}>
-                Add this city under System → Cities if it should appear in the app lists.
-              </p>
-            )}
+            <label htmlFor="pname">Name <span className="required">*</span></label>
+            <input
+              id="pname"
+              value={form.name}
+              onChange={(e) => setField('name', e.target.value)}
+              required
+            />
           </div>
 
           <div className="form-group">
-            <label>
-              Categories <span className="required">*</span>
-            </label>
-            {orphanCats.length > 0 && (
-              <p style={{ marginBottom: 8, fontSize: 12, color: '#6b7280' }}>
-                Some current values are not in System → Product categories. They stay selected until you remove them.
-              </p>
-            )}
+            <label htmlFor="pdesc">Description</label>
+            <textarea
+              id="pdesc"
+              value={form.description}
+              onChange={(e) => setField('description', e.target.value)}
+              rows={4}
+            />
+          </div>
+
+          <div className="form-row">
+            <div className="form-group">
+              <label htmlFor="pprice">Price</label>
+              <input
+                id="pprice"
+                type="number"
+                step="0.01"
+                value={form.price}
+                onChange={(e) => setField('price', e.target.value)}
+              />
+            </div>
+            <div className="form-group">
+              <label htmlFor="ppriceopt">Price option</label>
+              <select
+                id="ppriceopt"
+                value={form.price_option}
+                onChange={(e) => setField('price_option', e.target.value)}
+              >
+                {PRICE_OPTIONS.map((o) => (
+                  <option key={o} value={o}>{o}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          {form.price_option === 'Range' && (
+            <div className="form-group">
+              <label htmlFor="ppriceto">Price to</label>
+              <input
+                id="ppriceto"
+                type="number"
+                step="0.01"
+                value={form.price_to}
+                onChange={(e) => setField('price_to', e.target.value)}
+              />
+            </div>
+          )}
+          {form.price_option === 'Crossed' && (
+            <div className="form-group">
+              <label htmlFor="pcrossed">Original (crossed) price</label>
+              <input
+                id="pcrossed"
+                type="number"
+                step="0.01"
+                value={form.crossed_price}
+                onChange={(e) => setField('crossed_price', e.target.value)}
+              />
+            </div>
+          )}
+
+          <div className="form-group">
+            <label>Categories <span className="required">*</span></label>
             <div
               style={{
-                maxHeight: 220,
+                maxHeight: 200,
                 overflowY: 'auto',
                 border: '2px solid #e5e7eb',
                 borderRadius: 8,
@@ -151,34 +232,18 @@ const EditProductModal = ({ product, isOpen, onClose, onSave, isLoading }) => {
               }}
             >
               {lookupsLoading ? (
-                <span style={{ color: '#6b7280' }}>Loading categories…</span>
+                <span style={{ color: '#6b7280' }}>Loading…</span>
               ) : (
                 <>
                   {orphanCats.map((n) => (
-                    <label
-                      key={`orphan-${n}`}
-                      style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8, cursor: 'pointer' }}
-                    >
-                      <input
-                        type="checkbox"
-                        checked={selectedCategories.includes(n)}
-                        onChange={() => toggleCategory(n)}
-                      />
-                      <span>
-                        {n} <em style={{ color: '#9ca3af' }}>(current)</em>
-                      </span>
+                    <label key={`o-${n}`} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8, cursor: 'pointer' }}>
+                      <input type="checkbox" checked={form.categorySelections.includes(n)} onChange={() => toggleCategory(n)} />
+                      <span>{n} <em style={{ color: '#9ca3af' }}>(current)</em></span>
                     </label>
                   ))}
                   {categoryNames.map((n) => (
-                    <label
-                      key={n}
-                      style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8, cursor: 'pointer' }}
-                    >
-                      <input
-                        type="checkbox"
-                        checked={selectedCategories.includes(n)}
-                        onChange={() => toggleCategory(n)}
-                      />
+                    <label key={n} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8, cursor: 'pointer' }}>
+                      <input type="checkbox" checked={form.categorySelections.includes(n)} onChange={() => toggleCategory(n)} />
                       <span>{n}</span>
                     </label>
                   ))}
@@ -187,19 +252,69 @@ const EditProductModal = ({ product, isOpen, onClose, onSave, isLoading }) => {
             </div>
           </div>
 
+          <div className="form-row">
+            <div className="form-group">
+              <label htmlFor="ptype">Condition</label>
+              <select id="ptype" value={form.type} onChange={(e) => setField('type', e.target.value)}>
+                {CONDITION.map((c) => (
+                  <option key={c} value={c}>{c}</option>
+                ))}
+              </select>
+            </div>
+            <div className="form-group">
+              <label htmlFor="pposted">Posted from</label>
+              <input
+                id="pposted"
+                value={form.posted_from}
+                onChange={(e) => setField('posted_from', e.target.value)}
+              />
+            </div>
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="pcity">City / location <span className="required">*</span></label>
+            <select
+              id="pcity"
+              value={form.location}
+              onChange={(e) => setField('location', e.target.value)}
+              disabled={lookupsLoading}
+            >
+              <option value="">{lookupsLoading ? 'Loading…' : 'Select city'}</option>
+              {form.location && !cityNames.includes(form.location) && (
+                <option value={form.location}>{form.location} (current)</option>
+              )}
+              {cityNames.map((n) => (
+                <option key={n} value={n}>{n}</option>
+              ))}
+            </select>
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="pimg">Image URLs</label>
+            <textarea
+              id="pimg"
+              value={form.image}
+              onChange={(e) => setField('image', e.target.value)}
+              placeholder="Comma-separated URLs"
+              rows={3}
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="pstatus">Status</label>
+            <select id="pstatus" value={form.status} onChange={(e) => setField('status', e.target.value)}>
+              {STATUS_OPTIONS.map((s) => (
+                <option key={s} value={s}>{s}</option>
+              ))}
+            </select>
+          </div>
+
           <div className="modal-footer">
             <button type="button" className="btn-cancel" onClick={onClose} disabled={isLoading}>
               Cancel
             </button>
             <button type="submit" className="btn-save" disabled={isLoading || lookupsLoading}>
-              {isLoading ? (
-                <>
-                  <span className="spinner-small" />
-                  Saving…
-                </>
-              ) : (
-                'Save'
-              )}
+              {isLoading ? 'Saving…' : 'Save'}
             </button>
           </div>
         </form>

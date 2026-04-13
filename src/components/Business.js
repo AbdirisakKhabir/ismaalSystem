@@ -55,17 +55,16 @@ const Business = () => {
 
     try {
       setIsSaving(true);
-      await businessApi.updateBusiness(editingBusiness.id, updatedData, userId);
-      
+      const res = await businessApi.updateBusiness(editingBusiness.id, updatedData, userId);
+      const next = res.business || res;
+
       setBusinesses((prev) =>
-        prev.map((b) =>
-          b.id === editingBusiness.id ? { ...b, ...updatedData, status: 'PENDING' } : b
-        )
+        prev.map((b) => (b.id === editingBusiness.id ? { ...b, ...next } : b))
       );
 
       setIsEditModalOpen(false);
       setEditingBusiness(null);
-      alert('Business updated successfully! It will be reviewed by admin.');
+      alert('Business updated successfully.');
     } catch (err) {
       console.error('Error updating business:', err);
       alert(err.response?.data?.error || 'Failed to update business. Please try again.');

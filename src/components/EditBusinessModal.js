@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { systemApi } from '../services/systemApi';
 import './EditBusinessModal.css';
 
+const STATUS_OPTIONS = ['PENDING', 'APPROVED', 'REJECTED', 'ACTIVE', 'INACTIVE'];
+
 const EditBusinessModal = ({ business, isOpen, onClose, onSave, isLoading }) => {
   const [formData, setFormData] = useState({
     name: '',
@@ -10,6 +12,9 @@ const EditBusinessModal = ({ business, isOpen, onClose, onSave, isLoading }) => 
     phone: '',
     email: '',
     location: '',
+    businessType: '',
+    status: 'PENDING',
+    image: '',
   });
 
   const [errors, setErrors] = useState({});
@@ -26,6 +31,9 @@ const EditBusinessModal = ({ business, isOpen, onClose, onSave, isLoading }) => 
         phone: business.phone || '',
         email: business.email || '',
         location: business.location || '',
+        businessType: business.businessType ?? '',
+        status: business.status || 'PENDING',
+        image: business.image || '',
       });
       setErrors({});
     }
@@ -278,6 +286,45 @@ const EditBusinessModal = ({ business, isOpen, onClose, onSave, isLoading }) => 
             {errors.location && (
               <span className="error-message">{errors.location}</span>
             )}
+          </div>
+
+          <div className="form-row">
+            <div className="form-group">
+              <label htmlFor="businessType">Business type</label>
+              <input
+                type="text"
+                id="businessType"
+                name="businessType"
+                value={formData.businessType}
+                onChange={handleChange}
+                placeholder="Optional"
+              />
+            </div>
+            <div className="form-group">
+              <label htmlFor="status">Status</label>
+              <select
+                id="status"
+                name="status"
+                value={formData.status}
+                onChange={handleChange}
+              >
+                {STATUS_OPTIONS.map((s) => (
+                  <option key={s} value={s}>{s}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="image">Image URLs</label>
+            <textarea
+              id="image"
+              name="image"
+              value={formData.image}
+              onChange={handleChange}
+              placeholder="Comma-separated image URLs"
+              rows={3}
+            />
           </div>
 
           <div className="modal-footer">

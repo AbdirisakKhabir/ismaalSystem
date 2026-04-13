@@ -13,10 +13,12 @@ const api = axios.create({
 
 // Professional API functions
 export const professionalApi = {
-  // Get all professionals
+  // All professionals (admin list — every status)
   getAllProfessionals: async () => {
     try {
-      const response = await api.get('/api/professionals');
+      const response = await api.get('/api/admin/professionals', {
+        headers: { ...adminHeaders() },
+      });
       return response.data;
     } catch (error) {
       console.error('Error fetching professionals:', error);
