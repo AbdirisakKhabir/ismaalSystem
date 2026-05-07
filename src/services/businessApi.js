@@ -1,5 +1,4 @@
 import axios from 'axios';
-import { adminHeaders } from './systemApi';
 
 const API_BASE_URL = 'https://ismaal.taamsolutions.net';
 
@@ -13,12 +12,10 @@ const api = axios.create({
 
 // Business API functions
 export const businessApi = {
-  // All businesses (admin list includes every status)
+  // Get all businesses
   getAllBusinesses: async () => {
     try {
-      const response = await api.get('/api/admin/businesses', {
-        headers: { ...adminHeaders() },
-      });
+      const response = await api.get('/api/businesses');
       return response.data;
     } catch (error) {
       console.error('Error fetching businesses:', error);

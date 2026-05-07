@@ -1,5 +1,4 @@
 import axios from 'axios';
-import { adminHeaders } from './systemApi';
 
 const API_BASE_URL = 'https://ismaal.taamsolutions.net';
 
@@ -13,12 +12,10 @@ const api = axios.create({
 
 // Professional API functions
 export const professionalApi = {
-  // All professionals (admin list — every status)
+  // Get all professionals
   getAllProfessionals: async () => {
     try {
-      const response = await api.get('/api/admin/professionals', {
-        headers: { ...adminHeaders() },
-      });
+      const response = await api.get('/api/professionals');
       return response.data;
     } catch (error) {
       console.error('Error fetching professionals:', error);
@@ -33,19 +30,6 @@ export const professionalApi = {
       return response.data;
     } catch (error) {
       console.error('Error fetching professional:', error);
-      throw error;
-    }
-  },
-
-  // Update professional (admin)
-  updateProfessional: async (id, data) => {
-    try {
-      const response = await api.patch(`/api/professionals/${id}`, data, {
-        headers: { ...adminHeaders() },
-      });
-      return response.data;
-    } catch (error) {
-      console.error('Error updating professional:', error);
       throw error;
     }
   },

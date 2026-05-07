@@ -11,7 +11,7 @@ const UsersTable = ({ users, onView, onDelete, isLoading }) => {
   return (
     <div className="users-table-container">
       <table className="users-table">
-        <thead><tr><th>User</th><th>Email</th><th>Role</th><th>Plan</th><th>Businesses</th><th>Products</th><th>Joined</th><th>Actions</th></tr></thead>
+        <thead><tr><th>User</th><th>Email</th><th>Phone</th><th>Role</th><th>Plan</th><th>Businesses</th><th>Products</th><th>Joined</th><th>Actions</th></tr></thead>
         <tbody>
           {users.map((user) => (
             <tr key={user.id}>
@@ -22,6 +22,7 @@ const UsersTable = ({ users, onView, onDelete, isLoading }) => {
                 </div>
               </td>
               <td><a href={`mailto:${user.email}`} className="email-link">{user.email || 'No email'}</a></td>
+              <td>{user.phone || 'N/A'}</td>
               <td><span className={`role-badge ${user.role?.toLowerCase() || 'user'}`}>{user.role || 'USER'}</span></td>
               <td><span className="plan-badge">{user.plan?.name || 'Free'}</span></td>
               <td>{user.businesses?.length || user._count?.businesses || 0}</td>

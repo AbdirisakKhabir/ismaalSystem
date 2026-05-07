@@ -4,13 +4,9 @@ import EditBusinessModal from './EditBusinessModal';
 import DeleteConfirmModal from './DeleteConfirmModal';
 import Pagination from './Pagination';
 import { businessApi } from '../services/businessApi';
-import { useAuth } from '../context/AuthContext';
 import './Business.css';
 
 const Business = () => {
-  const { user } = useAuth();
-  const userId = user?.id;
-
   const [businesses, setBusinesses] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -20,9 +16,14 @@ const Business = () => {
   const [deletingBusiness, setDeletingBusiness] = useState(null);
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [userId, setUserId] = useState(null);
 
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
+
+  useEffect(() => {
+    setUserId(1);
+  }, []);
 
   useEffect(() => {
     fetchBusinesses();
@@ -55,16 +56,17 @@ const Business = () => {
 
     try {
       setIsSaving(true);
-      const res = await businessApi.updateBusiness(editingBusiness.id, updatedData, userId);
-      const next = res.business || res;
-
+      await businessApi.updateBusiness(editingBusiness.id, updatedData, userId);
+      
       setBusinesses((prev) =>
-        prev.map((b) => (b.id === editingBusiness.id ? { ...b, ...next } : b))
+        prev.map((b) =>
+          b.id === editingBusiness.id ? { ...b, ...updatedData, status: 'PENDING' } : b
+        )
       );
 
       setIsEditModalOpen(false);
       setEditingBusiness(null);
-      alert('Business updated successfully.');
+      alert('Business updated successfully! It will be reviewed by admin.');
     } catch (err) {
       console.error('Error updating business:', err);
       alert(err.response?.data?.error || 'Failed to update business. Please try again.');

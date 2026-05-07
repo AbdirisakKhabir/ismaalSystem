@@ -1,5 +1,4 @@
 import axios from 'axios';
-import { adminHeaders } from './systemApi';
 
 const API_BASE_URL = 'https://ismaal.taamsolutions.net';
 
@@ -13,12 +12,10 @@ const api = axios.create({
 
 // Product API functions
 export const productApi = {
-  // All products (admin list — every status)
+  // Get all products
   getAllProducts: async () => {
     try {
-      const response = await api.get('/api/admin/products', {
-        headers: { ...adminHeaders() },
-      });
+      const response = await api.get('/api/products');
       return response.data;
     } catch (error) {
       console.error('Error fetching products:', error);
@@ -33,19 +30,6 @@ export const productApi = {
       return response.data;
     } catch (error) {
       console.error('Error fetching product:', error);
-      throw error;
-    }
-  },
-
-  // Update product (admin — same x-user-id pattern as businesses)
-  updateProduct: async (id, data) => {
-    try {
-      const response = await api.patch(`/api/products/${id}`, data, {
-        headers: { ...adminHeaders() },
-      });
-      return response.data;
-    } catch (error) {
-      console.error('Error updating product:', error);
       throw error;
     }
   },

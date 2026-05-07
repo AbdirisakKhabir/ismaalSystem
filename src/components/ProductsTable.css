@@ -224,7 +224,6 @@
 }
 
 .btn-view,
-.btn-edit,
 .btn-delete {
   padding: 8px;
   border: none;
@@ -242,15 +241,6 @@
 }
 
 .btn-view:hover {
-  background: #f3e8ff;
-  transform: scale(1.1);
-}
-
-.btn-edit {
-  color: #8B5CF6;
-}
-
-.btn-edit:hover {
   background: #f3e8ff;
   transform: scale(1.1);
 }

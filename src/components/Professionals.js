@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import ProfessionalsTable from './ProfessionalsTable';
 import ViewProfessionalModal from './ViewProfessionalModal';
-import EditProfessionalModal from './EditProfessionalModal';
 import DeleteProfessionalModal from './DeleteProfessionalModal';
 import Pagination from './Pagination';
 import { professionalApi } from '../services/professionalApi';
@@ -13,9 +12,6 @@ const Professionals = () => {
   const [error, setError] = useState(null);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [viewingProfessional, setViewingProfessional] = useState(null);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [editingProfessional, setEditingProfessional] = useState(null);
-  const [isSaving, setIsSaving] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [deletingProfessional, setDeletingProfessional] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -39,28 +35,6 @@ const Professionals = () => {
 
   const handleViewClick = (p) => { setViewingProfessional(p); setIsViewModalOpen(true); };
   const handleCloseViewModal = () => { setIsViewModalOpen(false); setViewingProfessional(null); };
-  const handleEditClick = (p) => { setEditingProfessional(p); setIsEditModalOpen(true); };
-  const handleCloseEditModal = () => { setIsEditModalOpen(false); setEditingProfessional(null); };
-
-  const handleSaveProfessionalEdit = async (payload) => {
-    if (!editingProfessional) return;
-    try {
-      setIsSaving(true);
-      const res = await professionalApi.updateProfessional(editingProfessional.id, payload);
-      const next = res.professional || res;
-      setProfessionals((prev) =>
-        prev.map((p) => (p.id === editingProfessional.id ? { ...p, ...next } : p))
-      );
-      setIsEditModalOpen(false);
-      setEditingProfessional(null);
-      alert('Professional updated.');
-    } catch (err) {
-      alert(err.response?.data?.error || err.message || 'Failed to update. Ensure PATCH /api/professionals/:id exists for admins.');
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
   const handleDeleteClick = (p) => { setDeletingProfessional(p); setIsDeleteModalOpen(true); };
 
   const handleDeleteConfirm = async () => {
@@ -94,25 +68,12 @@ const Professionals = () => {
       </div>
       {error && <div className="error-banner"><span>{error}</span><button onClick={() => setError(null)}>×</button></div>}
       <div className="professionals-content">
-        <ProfessionalsTable
-          professionals={paginatedProfessionals}
-          onView={handleViewClick}
-          onEdit={handleEditClick}
-          onDelete={handleDeleteClick}
-          isLoading={isLoading}
-        />
+        <ProfessionalsTable professionals={paginatedProfessionals} onView={handleViewClick} onDelete={handleDeleteClick} isLoading={isLoading} />
         {!isLoading && professionals.length > 0 && (
           <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} totalItems={professionals.length} itemsPerPage={itemsPerPage} onItemsPerPageChange={(n) => { setItemsPerPage(n); setCurrentPage(1); }} />
         )}
       </div>
       <ViewProfessionalModal professional={viewingProfessional} isOpen={isViewModalOpen} onClose={handleCloseViewModal} />
-      <EditProfessionalModal
-        professional={editingProfessional}
-        isOpen={isEditModalOpen}
-        onClose={handleCloseEditModal}
-        onSave={handleSaveProfessionalEdit}
-        isLoading={isSaving}
-      />
       <DeleteProfessionalModal professional={deletingProfessional} isOpen={isDeleteModalOpen} onClose={handleCloseDeleteModal} onConfirm={handleDeleteConfirm} isLoading={isDeleting} />
     </div>
   );

@@ -1,7 +1,7 @@
 import React from 'react';
 import './ProductsTable.css';
 
-const ProductsTable = ({ products, onView, onEdit, onDelete, isLoading }) => {
+const ProductsTable = ({ products, onView, onDelete, isLoading }) => {
   if (isLoading) {
     return <div className="products-table-loading"><div className="loading-spinner"></div><p>Loading products...</p></div>;
   }
@@ -61,9 +61,6 @@ const ProductsTable = ({ products, onView, onEdit, onDelete, isLoading }) => {
                   <div className="action-buttons">
                     <button className="btn-view" onClick={() => onView(product)} title="View">
                       <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M1.33334 8C1.33334 8 3.33334 3.33334 8 3.33334C12.6667 3.33334 14.6667 8 14.6667 8C14.6667 8 12.6667 12.6667 8 12.6667C3.33334 12.6667 1.33334 8 1.33334 8Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/><path d="M8 10C9.10457 10 10 9.10457 10 8C10 6.89543 9.10457 6 8 6C6.89543 6 6 6.89543 6 8C6 9.10457 6.89543 10 8 10Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                    </button>
-                    <button type="button" className="btn-edit" onClick={() => onEdit(product)} title="Edit city & categories">
-                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M11.3333 2.00001C11.5084 1.82491 11.7163 1.68602 11.9441 1.59231C12.1719 1.4986 12.4151 1.45178 12.6667 1.45178C12.9182 1.45178 13.1614 1.4986 13.3892 1.59231C13.617 1.68602 13.8249 1.82491 14 2.00001C14.1751 2.1751 14.314 2.383 14.4077 2.61081C14.5014 2.83862 14.5482 3.08183 14.5482 3.33334C14.5482 3.58485 14.5014 3.82807 14.4077 4.05588C14.314 4.28369 14.1751 4.49159 14 4.66668L5.00001 13.6667L1.33334 14.6667L2.33334 11L11.3333 2.00001Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
                     </button>
                     <button className="btn-delete" onClick={() => onDelete(product)} title="Delete">
                       <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 4H14M12.6667 4V13.3333C12.6667 14.0697 12.0697 14.6667 11.3333 14.6667H4.66667C3.93029 14.6667 3.33333 14.0697 3.33333 13.3333V4M5.33333 4V2.66667C5.33333 1.93029 5.93029 1.33333 6.66667 1.33333H9.33333C10.0697 1.33333 10.6667 1.93029 10.6667 2.66667V4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
