@@ -44,15 +44,54 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     try {
-      const { user: loggedInUser } = await authApi.login(email, password);
+      const result = await authApi.login(email, password);
+
+      if (result.requiresVerification) {
+        return {
+          success: true,
+          requiresVerification: true,
+          email: result.email,
+          maskedPhone: result.maskedPhone,
+          message: result.message,
+        };
+      }
+
+      setUser(result.user);
+      setIsAuthenticated(true);
+      return { success: true, user: result.user };
+    } catch (error) {
+      return {
+        success: false,
+        error: error.message || 'Login failed. Please try again.',
+        code: error.code,
+      };
+    }
+  };
+
+  const verifyLogin = async (email, code) => {
+    try {
+      const { user: loggedInUser } = await authApi.verifyLogin(email, code);
       setUser(loggedInUser);
       setIsAuthenticated(true);
       return { success: true, user: loggedInUser };
     } catch (error) {
-      return { 
-        success: false, 
-        error: error.message || 'Login failed. Please try again.',
-        code: error.code
+      return {
+        success: false,
+        error: error.message || 'Verification failed. Please try again.',
+        code: error.code,
+      };
+    }
+  };
+
+  const resendLoginCode = async (email) => {
+    try {
+      const result = await authApi.resendLoginCode(email);
+      return { success: true, ...result };
+    } catch (error) {
+      return {
+        success: false,
+        error: error.message || 'Could not resend code. Please try again.',
+        code: error.code,
       };
     }
   };
@@ -68,6 +107,8 @@ export const AuthProvider = ({ children }) => {
     isLoading,
     isAuthenticated,
     login,
+    verifyLogin,
+    resendLoginCode,
     logout,
     checkAuth,
   };

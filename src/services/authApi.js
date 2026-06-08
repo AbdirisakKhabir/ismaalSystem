@@ -12,7 +12,7 @@ const api = axios.create({
 
 // Auth API functions
 export const authApi = {
-  // Login - Uses admin-specific endpoint that only allows ADMIN users
+  // Login step 1 - validate credentials and send WhatsApp verification code
   login: async (email, password) => {
     try {
       const response = await api.post('/api/auth/admin/login', {
@@ -20,14 +20,19 @@ export const authApi = {
         password,
       });
 
+      if (response.data.requiresVerification) {
+        return {
+          requiresVerification: true,
+          email: response.data.email,
+          maskedPhone: response.data.maskedPhone,
+          message: response.data.message,
+        };
+      }
+
       const { user } = response.data;
-
-      // Store user in localStorage
       localStorage.setItem('adminUser', JSON.stringify(user));
-
       return { user };
     } catch (error) {
-      // Handle specific error cases
       if (error.response?.status === 403) {
         const customError = new Error('Access denied. Admin privileges required.');
         customError.code = 'NOT_ADMIN';
@@ -40,13 +45,53 @@ export const authApi = {
         throw customError;
       }
 
-      if (error.response?.status === 404) {
-        const customError = new Error('User not found');
-        customError.code = 'USER_NOT_FOUND';
+      if (error.response?.data?.error) {
+        const customError = new Error(error.response.data.error);
+        customError.code = 'LOGIN_FAILED';
         throw customError;
       }
 
       console.error('Login error:', error);
+      throw error;
+    }
+  },
+
+  // Login step 2 - verify WhatsApp code and complete sign-in
+  verifyLogin: async (email, code) => {
+    try {
+      const response = await api.post('/api/auth/admin/verify-login', {
+        email,
+        code,
+      });
+
+      const { user } = response.data;
+      localStorage.setItem('adminUser', JSON.stringify(user));
+      return { user };
+    } catch (error) {
+      if (error.response?.data?.error) {
+        const customError = new Error(error.response.data.error);
+        customError.code = 'INVALID_CODE';
+        throw customError;
+      }
+      console.error('Verify login error:', error);
+      throw error;
+    }
+  },
+
+  // Resend WhatsApp verification code
+  resendLoginCode: async (email) => {
+    try {
+      const response = await api.post('/api/auth/admin/resend-login-code', {
+        email,
+      });
+      return response.data;
+    } catch (error) {
+      if (error.response?.data?.error) {
+        const customError = new Error(error.response.data.error);
+        customError.code = 'RESEND_FAILED';
+        throw customError;
+      }
+      console.error('Resend login code error:', error);
       throw error;
     }
   },

@@ -84,6 +84,30 @@ const ViewUserModal = ({ user, isOpen, onClose }) => {
                 </div>
               </div>
               <div className="contact-item">
+                <div className="contact-icon">
+                  <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M14.1667 1.66667H5.83334C4.91286 1.66667 4.16667 2.41286 4.16667 3.33334V16.6667C4.16667 17.5872 4.91286 18.3333 5.83334 18.3333H14.1667C15.0872 18.3333 15.8333 17.5872 15.8333 16.6667V3.33334C15.8333 2.41286 15.0872 1.66667 14.1667 1.66667Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M10 15.8333H10.0083" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </div>
+                <div className="contact-content">
+                  <span className="contact-label">Phone</span>
+                  <span className="contact-value">{user.phone || 'Not provided'}</span>
+                </div>
+              </div>
+              <div className="contact-item">
+                <div className="contact-icon">
+                  <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M10 17.5C13.4518 17.5 16.25 14.7018 16.25 11.25C16.25 7.79822 13.4518 5 10 5C6.54822 5 3.75 7.79822 3.75 11.25C3.75 14.7018 6.54822 17.5 10 17.5Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M10 8.75V11.25L11.6667 12.0833" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </div>
+                <div className="contact-content">
+                  <span className="contact-label">Location</span>
+                  <span className="contact-value">{user.location || 'Not provided'}</span>
+                </div>
+              </div>
+              <div className="contact-item">
                 <div className="contact-icon role">
                   <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M10 12.5C12.7614 12.5 15 10.2614 15 7.5C15 4.73858 12.7614 2.5 10 2.5C7.23858 2.5 5 4.73858 5 7.5C5 10.2614 7.23858 12.5 10 12.5Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
@@ -98,6 +122,12 @@ const ViewUserModal = ({ user, isOpen, onClose }) => {
                 </div>
               </div>
             </div>
+            {user.description && (
+              <div className="description-block">
+                <span className="contact-label">Description</span>
+                <p className="description-text">{user.description}</p>
+              </div>
+            )}
           </div>
 
           {/* Subscription Plan */}

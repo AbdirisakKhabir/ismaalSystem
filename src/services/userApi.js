@@ -34,6 +34,21 @@ export const userApi = {
     }
   },
 
+  // Update user
+  updateUser: async (id, data, adminUserId) => {
+    try {
+      const response = await api.patch(`/api/users/${id}`, data, {
+        headers: {
+          'x-user-id': adminUserId.toString(),
+        },
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error updating user:', error);
+      throw error;
+    }
+  },
+
   // Delete user
   deleteUser: async (id) => {
     try {

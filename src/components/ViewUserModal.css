@@ -170,6 +170,21 @@
   letter-spacing: 0.5px;
 }
 
+.description-block {
+  margin-top: 12px;
+  padding: 14px;
+  background: #f9fafb;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+}
+
+.description-text {
+  margin: 6px 0 0;
+  font-size: 13px;
+  color: #374151;
+  line-height: 1.5;
+}
+
 .contact-value {
   font-size: 13px;
   font-weight: 600;
