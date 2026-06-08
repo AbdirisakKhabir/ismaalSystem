@@ -29,9 +29,17 @@ export const authApi = {
         };
       }
 
-      const { user } = response.data;
-      localStorage.setItem('adminUser', JSON.stringify(user));
-      return { user };
+      if (response.data.user) {
+        const customError = new Error(
+          'WhatsApp verification is not active on the server. Deploy the latest backend (app.js) and restart the API.',
+        );
+        customError.code = 'VERIFICATION_NOT_ENABLED';
+        throw customError;
+      }
+
+      const customError = new Error('Unexpected login response from server.');
+      customError.code = 'LOGIN_FAILED';
+      throw customError;
     } catch (error) {
       if (error.response?.status === 403) {
         const customError = new Error('Access denied. Admin privileges required.');

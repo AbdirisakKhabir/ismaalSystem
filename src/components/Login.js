@@ -38,6 +38,8 @@ const Login = () => {
           setError('Access denied. Only administrators can access this panel.');
         } else if (result.code === 'INVALID_CREDENTIALS') {
           setError('Invalid email or password. Please try again.');
+        } else if (result.code === 'VERIFICATION_NOT_ENABLED') {
+          setError(result.error);
         } else {
           setError(result.error || 'Login failed. Please try again.');
         }
